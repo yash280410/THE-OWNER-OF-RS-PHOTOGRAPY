@@ -12,7 +12,7 @@
         "https://dazguesfusfmvgfwuqnk.supabase.co";
 
     const SUPABASE_PUBLISHABLE_KEY =
-        "sb_publishable_oZnvdj_k5vp8_gK_XhL3Lg_a3mgpJ4T";
+        "sb_publishable_oZnvdj_k5vp8_gK_XLh3Lg_a3mgpJ4T";
 
 
     /* ---------------------------------------------------------
