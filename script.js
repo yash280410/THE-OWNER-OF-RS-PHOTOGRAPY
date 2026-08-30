@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ===================================================== */
 
     const SUPABASE_URL =
-        "https://dazguesfusfmvgfwuqnk.supabase.com";
+        "https://dazguesfusfmvgfwuqnk.supabase.co";
 
     const SUPABASE_PUBLISHABLE_KEY =
         "sb_publishable_oZnvdj_k5vp8_gK_XLh3Lg_a3mgpJ4T";
