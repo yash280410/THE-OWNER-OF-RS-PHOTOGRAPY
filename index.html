@@ -2,26 +2,129 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>RS Supabase Test</title>
+    <title>RS Photography - Login Test</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: #100c13;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .box {
+            width: min(100%, 400px);
+            padding: 30px;
+            border-radius: 20px;
+            background: #1c1520;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        input,
+        button {
+            width: 100%;
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #49384e;
+            font: inherit;
+        }
+
+        input {
+            background: #110d14;
+            color: white;
+        }
+
+        button {
+            border: 0;
+            background: linear-gradient(
+                135deg,
+                #ff4f9a,
+                #8b5cf6
+            );
+            color: white;
+            font-weight: bold;
+        }
+
+        #status {
+            margin-top: 20px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h2>RS Photography</h2>
+    <main class="box">
 
-    <p id="status">Testing connection...</p>
+        <h1>RS Photography</h1>
 
+        <p>Owner Login Test</p>
+
+        <form id="loginForm">
+
+            <input
+                id="email"
+                type="email"
+                placeholder="Owner email"
+                autocomplete="username"
+                required
+            >
+
+            <input
+                id="password"
+                type="password"
+                placeholder="Owner password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+        <p id="status">
+            Ready.
+        </p>
+
+    </main>
+
+
+    <!-- Supabase library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+
     <script>
+
+        "use strict";
+
 
         const SUPABASE_URL =
             "https://dazguesfusfmvgfwuqnk.supabase.co";
 
+
         const SUPABASE_PUBLISHABLE_KEY =
             "sb_publishable_oZnvdj_k5vp8_gK_XLh3Lg_a3mgpJ4T";
+
 
         const supabaseClient =
             window.supabase.createClient(
@@ -30,42 +133,90 @@
             );
 
 
-        async function testConnection() {
-
-            const status =
-                document.getElementById("status");
+        const loginForm =
+            document.getElementById("loginForm");
 
 
-            const {
-                data,
-                error
-            } =
-                await supabaseClient.auth.getSession();
+        const status =
+            document.getElementById("status");
 
 
-            if (error) {
+        loginForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const email =
+                    document
+                        .getElementById("email")
+                        .value
+                        .trim();
+
+
+                const password =
+                    document
+                        .getElementById("password")
+                        .value;
+
 
                 status.textContent =
-                    "❌ Supabase connection failed";
+                    "Checking login...";
 
-                console.error(error);
 
-                return;
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient.auth
+                        .signInWithPassword({
+                            email: email,
+                            password: password
+                        });
+
+
+                if (error) {
+
+                    console.error(
+                        "LOGIN ERROR:",
+                        error
+                    );
+
+
+                    status.textContent =
+                        "❌ LOGIN FAILED: " +
+                        error.message;
+
+                    return;
+                }
+
+
+                console.log(
+                    "LOGIN SUCCESS:",
+                    data
+                );
+
+
+                status.textContent =
+                    "✅ LOGIN SUCCESSFUL";
+
+
+                const session =
+                    data.session;
+
+
+                if (session) {
+
+                    console.log(
+                        "Owner session created:",
+                        session
+                    );
+
+                }
+
             }
-
-
-            status.textContent =
-                "✅ Supabase connection working";
-
-            console.log(
-                "Session:",
-                data.session
-            );
-
-        }
-
-
-        testConnection();
+        );
 
     </script>
 
