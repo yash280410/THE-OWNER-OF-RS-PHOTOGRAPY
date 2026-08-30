@@ -1,493 +1,526 @@
 /* =========================================================
    RS PHOTOGRAPHY
-   OWNER DASHBOARD
-   FINAL CLEAN JAVASCRIPT
+   OWNER / ADMIN DASHBOARD
+   SCRIPT.JS
+   ---------------------------------------------------------
+   COMPLETE OWNER DASHBOARD CONTROLLER
 ========================================================= */
 
 "use strict";
 
 
 /* =========================================================
-   CONFIG
+   GLOBAL APPLICATION STATE
 ========================================================= */
 
-const SUPABASE_URL =
-    "https://dazguesfusfmvgfwuqnk.supabase.co";
+const RS_APP = {
 
-const SUPABASE_KEY =
-    "sb_publishable_oZnvdj_k5vp8_gK_XLh3Lg_a3mgpJ4T";
+    initialized: false,
 
+    authenticated: false,
 
-/* =========================================================
-   GLOBAL STATE
-========================================================= */
+    session: null,
 
-let supabaseClient = null;
+    user: null,
 
-let currentUser = null;
+    orders: [],
 
-let orders = [];
+    contracts: [],
 
-let currentDate = new Date();
+    customers: [],
 
-let selectedOrder = null;
+    currentPage: "dashboardHome",
 
+    calendarDate: new Date(),
 
-/* =========================================================
-   HELPERS
-========================================================= */
+    selectedDate: null,
 
-const $ = selector =>
-    document.querySelector(selector);
+    selectedOrderId: null,
 
+    loading: false,
 
-const $$ = selector =>
-    document.querySelectorAll(selector);
-
-
-const get = id =>
-    document.getElementById(id);
-
-
-const safeText = value =>
-    value === null ||
-    value === undefined
-        ? ""
-        : String(value);
-
-
-const escapeHTML = value => {
-
-    return safeText(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    refreshing: false
 
 };
 
 
-const formatDate = value => {
+/* =========================================================
+   SUPABASE HELPER
+========================================================= */
 
-    if (!value) {
-        return "—";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return safeText(value);
-    }
-
-    return date.toLocaleDateString(
-        "en-IN",
-        {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        }
-    );
-
-};
-
-
-const formatMoney = value => {
+function getSupabase() {
 
     if (
-        value === null ||
-        value === undefined ||
-        value === ""
+        typeof window.supabaseClient === "undefined" ||
+        !window.supabaseClient
     ) {
-        return "—";
+
+        throw new Error(
+            "Supabase client is not available."
+        );
+
     }
 
-    const number = Number(value);
+    return window.supabaseClient;
 
-    if (!Number.isFinite(number)) {
-        return safeText(value);
-    }
-
-    return new Intl.NumberFormat(
-        "en-IN",
-        {
-            style: "currency",
-            currency: "INR",
-            maximumFractionDigits: 0
-        }
-    ).format(number);
-
-};
+}
 
 
-const showMessage = (
-    message,
-    type = "info"
-) => {
+/* =========================================================
+   DOM HELPERS
+========================================================= */
 
-    const box =
-        get("systemMessage");
+function $(selector) {
 
-    if (!box) {
-        console.log(message);
-        return;
-    }
+    return document.querySelector(selector);
 
-    box.textContent = message;
-
-    box.className =
-        `system-message ${type}`;
-
-};
+}
 
 
-const hideMessage = () => {
+function $all(selector) {
 
-    const box =
-        get("systemMessage");
+    return Array.from(
+        document.querySelectorAll(selector)
+    );
 
-    if (!box) {
-        return;
-    }
+}
 
-    box.textContent = "";
 
-    box.className =
-        "system-message";
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const elements = {
+
+    loginScreen:
+        document.getElementById("loginScreen"),
+
+    loginForm:
+        document.getElementById("loginForm"),
+
+    loginEmail:
+        document.getElementById("loginEmail"),
+
+    loginPassword:
+        document.getElementById("loginPassword"),
+
+    loginButton:
+        document.getElementById("loginButton"),
+
+    loginMessage:
+        document.getElementById("loginMessage"),
+
+    togglePassword:
+        document.getElementById("togglePassword"),
+
+    dashboard:
+        document.getElementById("dashboard"),
+
+    sidebar:
+        document.getElementById("sidebar"),
+
+    sidebarOverlay:
+        document.getElementById("sidebarOverlay"),
+
+    menuButton:
+        document.getElementById("menuButton"),
+
+    sidebarClose:
+        document.getElementById("sidebarClose"),
+
+    logoutButton:
+        document.getElementById("logoutButton"),
+
+    settingsLogout:
+        document.getElementById("settingsLogout"),
+
+    ownerName:
+        document.getElementById("ownerName"),
+
+    ownerEmail:
+        document.getElementById("ownerEmail"),
+
+    welcomeName:
+        document.getElementById("welcomeName"),
+
+    settingsEmail:
+        document.getElementById("settingsEmail"),
+
+    sessionStatus:
+        document.getElementById("sessionStatus"),
+
+    pageTitle:
+        document.getElementById("pageTitle"),
+
+    pageEyebrow:
+        document.getElementById("pageEyebrow"),
+
+    currentDate:
+        document.getElementById("currentDate"),
+
+    globalMessage:
+        document.getElementById("globalMessage"),
+
+    toast:
+        document.getElementById("toast"),
+
+    toastText:
+        document.getElementById("toastText"),
+
+    toastIcon:
+        document.getElementById("toastIcon"),
+
+    refreshButton:
+        document.getElementById("refreshButton"),
+
+    notificationButton:
+        document.getElementById("notificationButton"),
+
+    notificationDot:
+        document.getElementById("notificationDot"),
+
+    totalOrders:
+        document.getElementById("totalOrders"),
+
+    pendingOrders:
+        document.getElementById("pendingOrders"),
+
+    confirmedOrders:
+        document.getElementById("confirmedOrders"),
+
+    monthlyRevenue:
+        document.getElementById("monthlyRevenue"),
+
+    orderBadge:
+        document.getElementById("orderBadge"),
+
+    upcomingBookings:
+        document.getElementById("upcomingBookings"),
+
+    recentOrders:
+        document.getElementById("recentOrders"),
+
+    ordersTableBody:
+        document.getElementById("ordersTableBody"),
+
+    orderSearch:
+        document.getElementById("orderSearch"),
+
+    orderStatusFilter:
+        document.getElementById("orderStatusFilter"),
+
+    newOrderButton:
+        document.getElementById("newOrderButton"),
+
+    orderModal:
+        document.getElementById("orderModal"),
+
+    orderForm:
+        document.getElementById("orderForm"),
+
+    orderDetailsModal:
+        document.getElementById("orderDetailsModal"),
+
+    orderDetailsContent:
+        document.getElementById("orderDetailsContent"),
+
+    calendarGrid:
+        document.getElementById("calendarGrid"),
+
+    calendarMonth:
+        document.getElementById("calendarMonth"),
+
+    previousMonth:
+        document.getElementById("previousMonth"),
+
+    nextMonth:
+        document.getElementById("nextMonth"),
+
+    todayButton:
+        document.getElementById("todayButton"),
+
+    selectedDateTitle:
+        document.getElementById("selectedDateTitle"),
+
+    selectedDayBookings:
+        document.getElementById("selectedDayBookings"),
+
+    customerSearch:
+        document.getElementById("customerSearch"),
+
+    customersGrid:
+        document.getElementById("customersGrid"),
+
+    contractsGrid:
+        document.getElementById("contractsGrid"),
+
+    newContractButton:
+        document.getElementById("newContractButton"),
+
+    contractModal:
+        document.getElementById("contractModal"),
+
+    contractForm:
+        document.getElementById("contractForm"),
+
+    uploadGalleryButton:
+        document.getElementById("uploadGalleryButton"),
+
+    studioSettingsForm:
+        document.getElementById("studioSettingsForm"),
+
+    studioName:
+        document.getElementById("studioName"),
+
+    studioPhone:
+        document.getElementById("studioPhone"),
+
+    studioLocation:
+        document.getElementById("studioLocation")
 
 };
 
 
 /* =========================================================
-   LOADING
+   PAGE INFORMATION
 ========================================================= */
 
-const setLoading = (
-    state,
-    text = "Loading..."
-) => {
+const PAGE_INFO = {
+
+    dashboardHome: {
+        title: "Dashboard",
+        eyebrow: "OWNER STUDIO"
+    },
+
+    ordersPage: {
+        title: "Orders",
+        eyebrow: "BOOKINGS"
+    },
+
+    calendarPage: {
+        title: "Calendar",
+        eyebrow: "SCHEDULE"
+    },
+
+    customersPage: {
+        title: "Customers",
+        eyebrow: "CLIENTS"
+    },
+
+    contractsPage: {
+        title: "Contracts",
+        eyebrow: "DOCUMENTS"
+    },
+
+    galleryPage: {
+        title: "Gallery",
+        eyebrow: "PORTFOLIO"
+    },
+
+    messagesPage: {
+        title: "Messages",
+        eyebrow: "COMMUNICATION"
+    },
+
+    settingsPage: {
+        title: "Settings",
+        eyebrow: "CONFIGURATION"
+    }
+
+};
+
+
+/* =========================================================
+   LOGIN MESSAGE
+========================================================= */
+
+function showLoginMessage(
+    message,
+    type = ""
+) {
+
+    if (!elements.loginMessage) {
+        return;
+    }
+
+    elements.loginMessage.textContent =
+        message;
+
+    elements.loginMessage.className =
+        "form-message";
+
+    if (type) {
+
+        elements.loginMessage.classList.add(
+            type
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   GLOBAL MESSAGE
+========================================================= */
+
+function showGlobalMessage(
+    message,
+    type = ""
+) {
+
+    if (!elements.globalMessage) {
+        return;
+    }
+
+    elements.globalMessage.textContent =
+        message;
+
+    elements.globalMessage.className =
+        "global-message";
+
+    if (type) {
+
+        elements.globalMessage.classList.add(
+            type
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer = null;
+
+
+function showToast(
+    message,
+    type = "success"
+) {
+
+    if (!elements.toast) {
+        return;
+    }
+
+    if (toastTimer) {
+
+        clearTimeout(
+            toastTimer
+        );
+
+    }
+
+    if (elements.toastText) {
+
+        elements.toastText.textContent =
+            message;
+
+    }
+
+    if (elements.toastIcon) {
+
+        elements.toastIcon.textContent =
+            type === "error"
+                ? "!"
+                : type === "warning"
+                    ? "!"
+                    : "✓";
+
+    }
+
+    elements.toast.classList.remove(
+        "error",
+        "warning",
+        "success"
+    );
+
+    elements.toast.classList.add(
+        type
+    );
+
+    elements.toast.classList.add(
+        "show"
+    );
+
+    toastTimer =
+        setTimeout(() => {
+
+            elements.toast.classList.remove(
+                "show"
+            );
+
+        }, 3500);
+
+}
+
+
+/* =========================================================
+   LOADING BUTTON
+========================================================= */
+
+function setLoginLoading(
+    loading
+) {
+
+    if (!elements.loginButton) {
+        return;
+    }
+
+    elements.loginButton.disabled =
+        loading;
+
+    const text =
+        elements.loginButton.querySelector(
+            ".button-text"
+        );
 
     const loader =
-        get("appLoader");
+        elements.loginButton.querySelector(
+            ".button-loader"
+        );
 
-    if (!loader) {
-        return;
-    }
+    if (text) {
 
-    if (state) {
-
-        loader.classList.add("show");
-
-        const textElement =
-            loader.querySelector(
-                ".loader-text"
-            );
-
-        if (textElement) {
-            textElement.textContent =
-                text;
-        }
-
-    } else {
-
-        loader.classList.remove("show");
+        text.textContent =
+            loading
+                ? "Signing in..."
+                : "Sign In";
 
     }
 
-};
+    if (loader) {
 
-
-/* =========================================================
-   LOAD SUPABASE LIBRARY
-========================================================= */
-
-const loadSupabaseLibrary = () => {
-
-    return new Promise(
-        (resolve, reject) => {
-
-            if (
-                window.supabase &&
-                typeof window.supabase.createClient ===
-                "function"
-            ) {
-
-                resolve();
-
-                return;
-
-            }
-
-
-            const existing =
-                document.querySelector(
-                    'script[data-supabase-library="true"]'
-                );
-
-
-            if (existing) {
-
-                existing.addEventListener(
-                    "load",
-                    resolve,
-                    { once: true }
-                );
-
-                existing.addEventListener(
-                    "error",
-                    () =>
-                        reject(
-                            new Error(
-                                "Supabase library failed to load."
-                            )
-                        ),
-                    { once: true }
-                );
-
-                return;
-
-            }
-
-
-            const script =
-                document.createElement(
-                    "script"
-                );
-
-
-            script.src =
-                "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-
-
-            script.async = true;
-
-            script.dataset.supabaseLibrary =
-                "true";
-
-
-            script.onload = () => {
-
-                if (
-                    window.supabase &&
-                    typeof window.supabase.createClient ===
-                    "function"
-                ) {
-
-                    resolve();
-
-                } else {
-
-                    reject(
-                        new Error(
-                            "Supabase library is unavailable."
-                        )
-                    );
-
-                }
-
-            };
-
-
-            script.onerror = () => {
-
-                reject(
-                    new Error(
-                        "Could not load Supabase."
-                    )
-                );
-
-            };
-
-
-            document.head.appendChild(
-                script
-            );
-
-        }
-    );
-
-};
-
-
-/* =========================================================
-   CREATE SUPABASE CLIENT
-========================================================= */
-
-const initializeSupabase = async () => {
-
-    await loadSupabaseLibrary();
-
-
-    supabaseClient =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY,
-            {
-                auth: {
-                    persistSession: true,
-                    autoRefreshToken: true,
-                    detectSessionInUrl: true
-                }
-            }
+        loader.classList.toggle(
+            "active",
+            loading
         );
-
-
-    return supabaseClient;
-
-};
-
-
-/* =========================================================
-   SUPABASE CONNECTION TEST
-========================================================= */
-
-const testConnection = async () => {
-
-    if (!supabaseClient) {
-        throw new Error(
-            "Supabase client is not initialized."
-        );
-    }
-
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .from("orders")
-            .select("id")
-            .limit(1);
-
-
-    if (error) {
-
-        console.error(
-            "Supabase connection error:",
-            error
-        );
-
-        /*
-           Do not block the entire website.
-
-           Authentication can still work even when
-           the orders table has a policy/schema issue.
-        */
-
-        return false;
 
     }
 
-
-    return true;
-
-};
-
-
-/* =========================================================
-   AUTH UI
-========================================================= */
-
-const showLoginScreen = () => {
-
-    const loginScreen =
-        get("loginScreen");
-
-    const dashboard =
-        get("dashboard");
-
-    if (loginScreen) {
-        loginScreen.classList.remove(
-            "hidden"
-        );
-    }
-
-    if (dashboard) {
-        dashboard.classList.add(
-            "hidden"
-        );
-    }
-
-};
-
-
-const showDashboard = () => {
-
-    const loginScreen =
-        get("loginScreen");
-
-    const dashboard =
-        get("dashboard");
-
-    if (loginScreen) {
-        loginScreen.classList.add(
-            "hidden"
-        );
-    }
-
-    if (dashboard) {
-        dashboard.classList.remove(
-            "hidden"
-        );
-    }
-
-};
-
-
-/* =========================================================
-   DISPLAY USER
-========================================================= */
-
-const updateUserDetails = () => {
-
-    if (!currentUser) {
-        return;
-    }
-
-
-    const email =
-        safeText(
-            currentUser.email
-        );
-
-
-    const elements =
-        document.querySelectorAll(
-            "[data-user-email]"
-        );
-
-
-    elements.forEach(
-        element => {
-
-            element.textContent =
-                email;
-
-        }
-    );
-
-};
+}
 
 
 /* =========================================================
    LOGIN
 ========================================================= */
 
-const login = async (
+async function loginOwner(
     email,
     password
-) => {
+) {
 
-    if (!supabaseClient) {
-
-        throw new Error(
-            "Database is not ready."
-        );
-
-    }
+    const supabase =
+        getSupabase();
 
 
     const cleanEmail =
-        email.trim();
+        String(email || "")
+            .trim()
+            .toLowerCase();
 
 
     if (!cleanEmail) {
@@ -508,80 +541,716 @@ const login = async (
     }
 
 
+    /*
+     * IMPORTANT:
+     *
+     * This sends credentials directly to
+     * Supabase Auth.
+     *
+     * It does NOT submit the HTML form to the
+     * GitHub Pages URL.
+     */
+
     const {
         data,
         error
     } =
-        await supabaseClient.auth
-            .signInWithPassword({
-                email:
-                    cleanEmail,
+        await supabase.auth.signInWithPassword({
+
+            email:
+                cleanEmail,
+
+            password:
                 password
-            });
+
+        });
 
 
     if (error) {
-
-        console.error(
-            "LOGIN ERROR:",
-            error
-        );
 
         throw error;
 
     }
 
 
-    currentUser =
+    if (
+        !data ||
+        !data.session
+    ) {
+
+        throw new Error(
+            "Login succeeded but no session was returned."
+        );
+
+    }
+
+
+    RS_APP.session =
+        data.session;
+
+    RS_APP.user =
         data.user;
 
+    RS_APP.authenticated =
+        true;
 
-    return currentUser;
 
-};
+    return data;
+
+}
+
+
+/* =========================================================
+   LOGIN FORM
+========================================================= */
+
+function setupLogin() {
+
+    if (!elements.loginForm) {
+        return;
+    }
+
+
+    elements.loginForm.addEventListener(
+        "submit",
+        async event => {
+
+            /*
+             * This is the critical fix.
+             *
+             * Prevents:
+             *
+             * ?email=...&password=...
+             */
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            const email =
+                elements.loginEmail
+                    ? elements.loginEmail.value
+                    : "";
+
+
+            const password =
+                elements.loginPassword
+                    ? elements.loginPassword.value
+                    : "";
+
+
+            showLoginMessage(
+                ""
+            );
+
+
+            setLoginLoading(
+                true
+            );
+
+
+            try {
+
+                await loginOwner(
+                    email,
+                    password
+                );
+
+
+                /*
+                 * Remove credentials from URL if
+                 * an old URL contains them.
+                 */
+
+                cleanAuthenticationUrl();
+
+
+                showLoginMessage(
+                    "Login successful.",
+                    "success"
+                );
+
+
+                /*
+                 * Open dashboard.
+                 */
+
+                await enterDashboard();
+
+
+            } catch (error) {
+
+                console.error(
+                    "RS Photography login error:",
+                    error
+                );
+
+
+                showLoginMessage(
+                    getFriendlyAuthError(
+                        error
+                    ),
+                    "error"
+                );
+
+
+                setLoginLoading(
+                    false
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   AUTH ERROR TRANSLATOR
+========================================================= */
+
+function getFriendlyAuthError(
+    error
+) {
+
+    const message =
+        String(
+            error?.message || ""
+        ).toLowerCase();
+
+
+    if (
+        message.includes(
+            "invalid login credentials"
+        )
+    ) {
+
+        return "Incorrect email or password.";
+
+    }
+
+
+    if (
+        message.includes(
+            "email not confirmed"
+        )
+    ) {
+
+        return "Your owner email has not been confirmed in Supabase.";
+
+    }
+
+
+    if (
+        message.includes(
+            "too many requests"
+        )
+    ) {
+
+        return "Too many login attempts. Please wait and try again.";
+
+    }
+
+
+    if (
+        message.includes(
+            "network"
+        )
+    ) {
+
+        return "Network connection failed. Check your internet connection.";
+
+    }
+
+
+    return (
+        error?.message ||
+        "Login failed. Please try again."
+    );
+
+}
+
+
+/* =========================================================
+   PASSWORD VISIBILITY
+========================================================= */
+
+function setupPasswordToggle() {
+
+    if (
+        !elements.togglePassword ||
+        !elements.loginPassword
+    ) {
+
+        return;
+
+    }
+
+
+    elements.togglePassword.addEventListener(
+        "click",
+        () => {
+
+            const hidden =
+                elements.loginPassword.type ===
+                "password";
+
+
+            elements.loginPassword.type =
+                hidden
+                    ? "text"
+                    : "password";
+
+
+            elements.togglePassword.textContent =
+                hidden
+                    ? "Hide"
+                    : "Show";
+
+
+            elements.togglePassword.setAttribute(
+                "aria-label",
+                hidden
+                    ? "Hide password"
+                    : "Show password"
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   AUTH SESSION
+========================================================= */
+
+async function getCurrentSession() {
+
+    const supabase =
+        getSupabase();
+
+
+    const {
+        data,
+        error
+    } =
+        await supabase.auth.getSession();
+
+
+    if (error) {
+
+        throw error;
+
+    }
+
+
+    return data.session;
+
+}
+
+
+/* =========================================================
+   AUTH STATE LISTENER
+========================================================= */
+
+function setupAuthListener() {
+
+    const supabase =
+        getSupabase();
+
+
+    supabase.auth.onAuthStateChange(
+        async (
+            event,
+            session
+        ) => {
+
+            console.log(
+                "Auth event:",
+                event
+            );
+
+
+            RS_APP.session =
+                session;
+
+            RS_APP.user =
+                session?.user || null;
+
+
+            if (session) {
+
+                RS_APP.authenticated =
+                    true;
+
+
+                /*
+                 * Do not repeatedly rebuild dashboard
+                 * during token refresh.
+                 */
+
+                if (
+                    event === "SIGNED_IN" ||
+                    event === "INITIAL_SESSION"
+                ) {
+
+                    await enterDashboard();
+
+                }
+
+            } else {
+
+                RS_APP.authenticated =
+                    false;
+
+                showLoginScreen();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   DASHBOARD ENTRY
+========================================================= */
+
+async function enterDashboard() {
+
+    if (!RS_APP.session) {
+
+        try {
+
+            RS_APP.session =
+                await getCurrentSession();
+
+            RS_APP.user =
+                RS_APP.session?.user || null;
+
+        } catch (error) {
+
+            console.error(
+                "Session error:",
+                error
+            );
+
+            showLoginScreen();
+
+            return;
+
+        }
+
+    }
+
+
+    if (!RS_APP.session) {
+
+        showLoginScreen();
+
+        return;
+
+    }
+
+
+    RS_APP.authenticated =
+        true;
+
+
+    hideLoginScreen();
+
+    showDashboard();
+
+
+    updateOwnerInformation();
+
+    updateCurrentDate();
+
+    initializeNavigation();
+
+    await refreshAllData();
+
+    setSessionStatus(
+        "Active"
+    );
+
+}
+
+
+/* =========================================================
+   SHOW LOGIN
+========================================================= */
+
+function showLoginScreen() {
+
+    if (elements.loginScreen) {
+
+        elements.loginScreen.classList.remove(
+            "hidden"
+        );
+
+    }
+
+
+    if (elements.dashboard) {
+
+        elements.dashboard.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+    setSessionStatus(
+        "Signed out"
+    );
+
+}
+
+
+/* =========================================================
+   HIDE LOGIN
+========================================================= */
+
+function hideLoginScreen() {
+
+    if (elements.loginScreen) {
+
+        elements.loginScreen.classList.add(
+            "hidden"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SHOW DASHBOARD
+========================================================= */
+
+function showDashboard() {
+
+    if (!elements.dashboard) {
+        return;
+    }
+
+
+    elements.dashboard.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+/* =========================================================
+   OWNER INFORMATION
+========================================================= */
+
+function updateOwnerInformation() {
+
+    const user =
+        RS_APP.user;
+
+
+    if (!user) {
+        return;
+    }
+
+
+    const email =
+        user.email ||
+        "Owner";
+
+
+    /*
+     * Try metadata first.
+     */
+
+    const metadata =
+        user.user_metadata ||
+        {};
+
+
+    const name =
+        metadata.full_name ||
+        metadata.name ||
+        metadata.display_name ||
+        "Owner";
+
+
+    if (elements.ownerName) {
+
+        elements.ownerName.textContent =
+            name;
+
+    }
+
+
+    if (elements.welcomeName) {
+
+        elements.welcomeName.textContent =
+            name;
+
+    }
+
+
+    if (elements.ownerEmail) {
+
+        elements.ownerEmail.textContent =
+            email;
+
+    }
+
+
+    if (elements.settingsEmail) {
+
+        elements.settingsEmail.textContent =
+            email;
+
+    }
+
+}
+
+
+/* =========================================================
+   SESSION STATUS
+========================================================= */
+
+function setSessionStatus(
+    status
+) {
+
+    if (
+        elements.sessionStatus
+    ) {
+
+        elements.sessionStatus.textContent =
+            status;
+
+    }
+
+}
+
+
+/* =========================================================
+   URL CLEANUP
+========================================================= */
+
+function cleanAuthenticationUrl() {
+
+    try {
+
+        const url =
+            new URL(
+                window.location.href
+            );
+
+
+        /*
+         * Remove old insecure query parameters.
+         */
+
+        url.searchParams.delete(
+            "email"
+        );
+
+        url.searchParams.delete(
+            "password"
+        );
+
+
+        /*
+         * Remove Supabase auth hash after
+         * the session has been processed.
+         */
+
+        if (
+            url.hash &&
+            (
+                url.hash.includes(
+                    "access_token"
+                ) ||
+                url.hash.includes(
+                    "refresh_token"
+                )
+            )
+        ) {
+
+            url.hash =
+                "";
+
+        }
+
+
+        window.history.replaceState(
+            {},
+            document.title,
+            url.pathname +
+            url.search +
+            url.hash
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Could not clean authentication URL:",
+            error
+        );
+
+    }
+
+}
 
 
 /* =========================================================
    LOGOUT
 ========================================================= */
 
-const logout = async () => {
-
-    if (!supabaseClient) {
-        return;
-    }
-
-
-    setLoading(
-        true,
-        "Signing out..."
-    );
-
+async function logoutOwner() {
 
     try {
 
-        const {
-            error
-        } =
-            await supabaseClient.auth
-                .signOut();
+        const supabase =
+            getSupabase();
 
 
-        if (error) {
-            throw error;
-        }
+        await supabase.auth.signOut();
 
 
-        currentUser = null;
+        RS_APP.session =
+            null;
 
-        orders = [];
+        RS_APP.user =
+            null;
+
+        RS_APP.authenticated =
+            false;
+
 
         showLoginScreen();
 
-        showMessage(
+
+        if (elements.loginForm) {
+
+            elements.loginForm.reset();
+
+        }
+
+
+        showLoginMessage(
             "You have been signed out.",
             "success"
         );
+
+
+        closeAllModals();
+
+        closeSidebar();
 
 
     } catch (error) {
@@ -591,549 +1260,1161 @@ const logout = async () => {
             error
         );
 
-        showMessage(
+
+        showToast(
             "Could not sign out.",
             "error"
         );
 
-    } finally {
-
-        setLoading(false);
-
     }
 
-};
+}
 
 
 /* =========================================================
-   CHECK EXISTING SESSION
+   LOGOUT BUTTONS
 ========================================================= */
 
-const checkSession = async () => {
+function setupLogoutButtons() {
 
-    if (!supabaseClient) {
-        return false;
+    if (elements.logoutButton) {
+
+        elements.logoutButton.addEventListener(
+            "click",
+            logoutOwner
+        );
+
     }
+
+
+    if (elements.settingsLogout) {
+
+        elements.settingsLogout.addEventListener(
+            "click",
+            logoutOwner
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function initializeNavigation() {
+
+    $all(
+        "[data-page]"
+    ).forEach(
+        element => {
+
+            if (
+                element.dataset.navigationBound
+            ) {
+
+                return;
+
+            }
+
+
+            element.dataset.navigationBound =
+                "true";
+
+
+            element.addEventListener(
+                "click",
+                event => {
+
+                    event.preventDefault();
+
+
+                    const page =
+                        element.dataset.page;
+
+
+                    if (!page) {
+                        return;
+                    }
+
+
+                    navigateToPage(
+                        page
+                    );
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   NAVIGATE PAGE
+========================================================= */
+
+function navigateToPage(
+    page
+) {
+
+    const target =
+        document.getElementById(
+            page
+        );
+
+
+    if (!target) {
+
+        console.warn(
+            "Page not found:",
+            page
+        );
+
+        return;
+
+    }
+
+
+    RS_APP.currentPage =
+        page;
+
+
+    /*
+     * Hide all page sections.
+     */
+
+    $all(
+        ".page-section"
+    ).forEach(
+        section => {
+
+            section.classList.remove(
+                "active-page"
+            );
+
+        }
+    );
+
+
+    target.classList.add(
+        "active-page"
+    );
+
+
+    /*
+     * Navigation active state.
+     */
+
+    $all(
+        ".nav-item"
+    ).forEach(
+        item => {
+
+            item.classList.toggle(
+                "active",
+                item.dataset.page === page
+            );
+
+        }
+    );
+
+
+    /*
+     * Page title.
+     */
+
+    const info =
+        PAGE_INFO[page] ||
+        {
+            title: "RS Photography",
+            eyebrow: "OWNER STUDIO"
+        };
+
+
+    if (elements.pageTitle) {
+
+        elements.pageTitle.textContent =
+            info.title;
+
+    }
+
+
+    if (elements.pageEyebrow) {
+
+        elements.pageEyebrow.textContent =
+            info.eyebrow;
+
+    }
+
+
+    closeSidebar();
+
+
+    /*
+     * Refresh page-specific content.
+     */
+
+    if (
+        page === "calendarPage"
+    ) {
+
+        renderCalendar();
+
+    }
+
+
+    if (
+        page === "customersPage"
+    ) {
+
+        renderCustomers();
+
+    }
+
+
+    if (
+        page === "contractsPage"
+    ) {
+
+        renderContracts();
+
+    }
+
+
+    if (
+        page === "ordersPage"
+    ) {
+
+        renderOrders();
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE SIDEBAR
+========================================================= */
+
+function openSidebar() {
+
+    if (elements.sidebar) {
+
+        elements.sidebar.classList.add(
+            "open"
+        );
+
+    }
+
+
+    if (elements.sidebarOverlay) {
+
+        elements.sidebarOverlay.classList.add(
+            "show"
+        );
+
+    }
+
+
+    document.body.classList.add(
+        "sidebar-open"
+    );
+
+}
+
+
+function closeSidebar() {
+
+    if (elements.sidebar) {
+
+        elements.sidebar.classList.remove(
+            "open"
+        );
+
+    }
+
+
+    if (elements.sidebarOverlay) {
+
+        elements.sidebarOverlay.classList.remove(
+            "show"
+        );
+
+    }
+
+
+    document.body.classList.remove(
+        "sidebar-open"
+    );
+
+}
+
+
+function setupSidebar() {
+
+    if (elements.menuButton) {
+
+        elements.menuButton.addEventListener(
+            "click",
+            openSidebar
+        );
+
+    }
+
+
+    if (elements.sidebarClose) {
+
+        elements.sidebarClose.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
+
+    if (elements.sidebarOverlay) {
+
+        elements.sidebarOverlay.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CURRENT DATE
+========================================================= */
+
+function updateCurrentDate() {
+
+    if (!elements.currentDate) {
+        return;
+    }
+
+
+    const now =
+        new Date();
+
+
+    elements.currentDate.textContent =
+        now.toLocaleDateString(
+            "en-IN",
+            {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+            }
+        );
+
+}
+
+
+/* =========================================================
+   ORDERS: LOAD
+========================================================= */
+
+async function loadOrders() {
+
+    const supabase =
+        getSupabase();
 
 
     const {
         data,
         error
     } =
-        await supabaseClient.auth
-            .getSession();
+        await supabase
+            .from("orders")
+            .select("*")
+            .order(
+                "booking_date",
+                {
+                    ascending: true
+                }
+            );
 
 
     if (error) {
 
         console.error(
-            "SESSION ERROR:",
+            "Orders load error:",
             error
         );
 
-        showLoginScreen();
-
-        return false;
+        throw error;
 
     }
 
 
-    const session =
-        data.session;
+    RS_APP.orders =
+        Array.isArray(data)
+            ? data
+            : [];
 
 
-    if (
-        session &&
-        session.user
-    ) {
+    return RS_APP.orders;
 
-        currentUser =
-            session.user;
-
-
-        showDashboard();
-
-        updateUserDetails();
-
-        return true;
-
-    }
-
-
-    currentUser = null;
-
-    showLoginScreen();
-
-    return false;
-
-};
+}
 
 
 /* =========================================================
-   AUTH STATE LISTENER
+   CONTRACTS: LOAD
 ========================================================= */
 
-const listenForAuthChanges = () => {
+async function loadContracts() {
 
-    if (!supabaseClient) {
-        return;
-    }
+    const supabase =
+        getSupabase();
 
 
-    supabaseClient.auth.onAuthStateChange(
-        (
-            event,
-            session
-        ) => {
-
-            console.log(
-                "AUTH:",
-                event
+    const {
+        data,
+        error
+    } =
+        await supabase
+            .from("contracts")
+            .select("*")
+            .order(
+                "contract_date",
+                {
+                    ascending: false
+                }
             );
 
 
-            if (
-                session &&
-                session.user
-            ) {
-
-                currentUser =
-                    session.user;
-
-                showDashboard();
-
-                updateUserDetails();
-
-            } else {
-
-                currentUser = null;
-
-                showLoginScreen();
-
-            }
-
-        }
-    );
-
-};
-
-
-/* =========================================================
-   LOGIN FORM
-========================================================= */
-
-const setupLoginForm = () => {
-
-    const form =
-        get("loginForm");
-
-
-    if (!form) {
-        return;
-    }
-
-
-    form.addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-            hideMessage();
-
-
-            const emailInput =
-                form.querySelector(
-                    '[name="email"]'
-                );
-
-
-            const passwordInput =
-                form.querySelector(
-                    '[name="password"]'
-                );
-
-
-            const email =
-                emailInput
-                    ? emailInput.value
-                    : "";
-
-
-            const password =
-                passwordInput
-                    ? passwordInput.value
-                    : "";
-
-
-            const button =
-                form.querySelector(
-                    'button[type="submit"]'
-                );
-
-
-            const originalText =
-                button
-                    ? button.textContent
-                    : "Login";
-
-
-            try {
-
-                if (button) {
-
-                    button.disabled =
-                        true;
-
-                    button.textContent =
-                        "Signing in...";
-
-                }
-
-
-                setLoading(
-                    true,
-                    "Authenticating..."
-                );
-
-
-                await login(
-                    email,
-                    password
-                );
-
-
-                showMessage(
-                    "Login successful.",
-                    "success"
-                );
-
-
-                showDashboard();
-
-                updateUserDetails();
-
-
-                await loadOrders();
-
-                updateDashboard();
-
-
-            } catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                showLoginScreen();
-
-
-                showMessage(
-                    error.message ||
-                    "Login failed. Check your email and password.",
-                    "error"
-                );
-
-
-            } finally {
-
-                setLoading(false);
-
-
-                if (button) {
-
-                    button.disabled =
-                        false;
-
-                    button.textContent =
-                        originalText;
-
-                }
-
-            }
-
-        }
-    );
-
-};
-
-
-/* =========================================================
-   LOGOUT BUTTON
-========================================================= */
-
-const setupLogout = () => {
-
-    const buttons =
-        document.querySelectorAll(
-            "[data-logout]"
+    /*
+     * If contracts table does not exist yet,
+     * don't crash the entire dashboard.
+     */
+
+    if (error) {
+
+        console.warn(
+            "Contracts could not be loaded:",
+            error
         );
 
 
-    buttons.forEach(
-        button => {
+        RS_APP.contracts =
+            [];
 
-            button.addEventListener(
-                "click",
-                logout
-            );
+
+        return [];
+
+    }
+
+
+    RS_APP.contracts =
+        Array.isArray(data)
+            ? data
+            : [];
+
+
+    return RS_APP.contracts;
+
+}
+
+
+/* =========================================================
+   CUSTOMERS: BUILD FROM ORDERS
+========================================================= */
+
+function buildCustomers() {
+
+    const map =
+        new Map();
+
+
+    RS_APP.orders.forEach(
+        order => {
+
+            const name =
+                String(
+                    order.customer_name ||
+                    ""
+                ).trim();
+
+
+            const phone =
+                String(
+                    order.phone ||
+                    ""
+                ).trim();
+
+
+            if (!name && !phone) {
+                return;
+            }
+
+
+            const key =
+                phone ||
+                name.toLowerCase();
+
+
+            if (
+                !map.has(key)
+            ) {
+
+                map.set(
+                    key,
+                    {
+                        name:
+                            name ||
+                            "Customer",
+
+                        phone:
+                            phone ||
+                            "—",
+
+                        location:
+                            order.location ||
+                            "—",
+
+                        bookings:
+                            0,
+
+                        lastDate:
+                            order.booking_date ||
+                            null
+                    }
+                );
+
+            }
+
+
+            const customer =
+                map.get(
+                    key
+                );
+
+
+            customer.bookings +=
+                1;
+
+
+            if (
+                order.booking_date &&
+                (
+                    !customer.lastDate ||
+                    order.booking_date >
+                    customer.lastDate
+                )
+            ) {
+
+                customer.lastDate =
+                    order.booking_date;
+
+            }
 
         }
     );
 
-};
+
+    RS_APP.customers =
+        Array.from(
+            map.values()
+        );
+
+
+    return RS_APP.customers;
+
+}
 
 
 /* =========================================================
-   LOAD ORDERS
+   REFRESH ALL DATA
 ========================================================= */
 
-const loadOrders = async () => {
+async function refreshAllData() {
 
-    if (!supabaseClient) {
+    if (RS_APP.refreshing) {
         return;
     }
+
+
+    RS_APP.refreshing =
+        true;
 
 
     try {
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("orders")
-                .select("*")
-                .order(
-                    "booking_date",
-                    {
-                        ascending: true
-                    }
-                );
+        await loadOrders();
 
+        await loadContracts();
 
-        if (error) {
+        buildCustomers();
 
-            console.error(
-                "ORDERS ERROR:",
-                error
-            );
+        updateDashboardStats();
 
+        renderRecentOrders();
 
-            /*
-               Keep dashboard alive.
-               A database policy error should not
-               turn the whole page into a loading screen.
-            */
-
-            orders = [];
-
-            renderOrders();
-
-            showMessage(
-                "Orders could not be loaded. Check the orders table permissions.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        orders =
-            Array.isArray(data)
-                ? data
-                : [];
-
+        renderUpcomingBookings();
 
         renderOrders();
 
-        updateDashboard();
-
         renderCalendar();
+
+        renderCustomers();
+
+        renderContracts();
+
+        updateNotificationState();
 
 
     } catch (error) {
 
         console.error(
-            "Unexpected orders error:",
+            "Dashboard refresh failed:",
             error
         );
 
 
-        orders = [];
+        showGlobalMessage(
+            "Could not load dashboard data.",
+            "error"
+        );
 
-        renderOrders();
+    } finally {
+
+        RS_APP.refreshing =
+            false;
 
     }
 
-};
+}
 
 
 /* =========================================================
-   RENDER ORDERS
+   DASHBOARD STATISTICS
 ========================================================= */
 
-const renderOrders = () => {
+function updateDashboardStats() {
 
-    const container =
-        get("ordersList");
+    const orders =
+        RS_APP.orders;
 
 
-    if (!container) {
+    const total =
+        orders.length;
+
+
+    const pending =
+        orders.filter(
+            order =>
+                normalizeStatus(
+                    order.status
+                ) === "pending"
+        ).length;
+
+
+    const confirmed =
+        orders.filter(
+            order =>
+                normalizeStatus(
+                    order.status
+                ) === "confirmed"
+        ).length;
+
+
+    const now =
+        new Date();
+
+
+    const month =
+        now.getMonth();
+
+
+    const year =
+        now.getFullYear();
+
+
+    const monthlyRevenue =
+        orders
+            .filter(
+                order => {
+
+                    if (
+                        normalizeStatus(
+                            order.status
+                        ) === "cancelled"
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    const date =
+                        parseDate(
+                            order.booking_date
+                        );
+
+
+                    return (
+                        date &&
+                        date.getMonth() === month &&
+                        date.getFullYear() === year
+                    );
+
+                }
+            )
+            .reduce(
+                (
+                    total,
+                    order
+                ) => {
+
+                    return total +
+                        Number(
+                            order.expected_money ||
+                            0
+                        );
+
+                },
+                0
+            );
+
+
+    setText(
+        elements.totalOrders,
+        total
+    );
+
+
+    setText(
+        elements.pendingOrders,
+        pending
+    );
+
+
+    setText(
+        elements.confirmedOrders,
+        confirmed
+    );
+
+
+    setText(
+        elements.monthlyRevenue,
+        formatCurrency(
+            monthlyRevenue
+        )
+    );
+
+
+    setText(
+        elements.orderBadge,
+        pending
+    );
+
+}
+
+
+/* =========================================================
+   TEXT HELPER
+========================================================= */
+
+function setText(
+    element,
+    value
+) {
+
+    if (element) {
+
+        element.textContent =
+            String(value);
+
+    }
+
+}
+
+
+/* =========================================================
+   CURRENCY
+========================================================= */
+
+function formatCurrency(
+    amount
+) {
+
+    const number =
+        Number(amount || 0);
+
+
+    return number.toLocaleString(
+        "en-IN",
+        {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 0
+        }
+    );
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function normalizeStatus(
+    status
+) {
+
+    return String(
+        status ||
+        "pending"
+    )
+        .trim()
+        .toLowerCase();
+
+}
+
+
+/* =========================================================
+   DATE PARSER
+========================================================= */
+
+function parseDate(
+    value
+) {
+
+    if (!value) {
+        return null;
+    }
+
+
+    const date =
+        new Date(
+            `${value}T00:00:00`
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    return date;
+
+}
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+function formatDate(
+    value,
+    options = {}
+) {
+
+    const date =
+        parseDate(
+            value
+        );
+
+
+    if (!date) {
+        return "—";
+    }
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day:
+                options.day ||
+                "numeric",
+
+            month:
+                options.month ||
+                "short",
+
+            year:
+                options.year ||
+                "numeric"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FORMAT TIME
+========================================================= */
+
+function formatTime(
+    value
+) {
+
+    if (!value) {
+        return "—";
+    }
+
+
+    const parts =
+        String(value)
+            .split(":");
+
+
+    if (
+        parts.length < 2
+    ) {
+
+        return value;
+
+    }
+
+
+    const hours =
+        Number(
+            parts[0]
+        );
+
+
+    const minutes =
+        parts[1];
+
+
+    if (
+        Number.isNaN(
+            hours
+        )
+    ) {
+
+        return value;
+
+    }
+
+
+    const suffix =
+        hours >= 12
+            ? "PM"
+            : "AM";
+
+
+    const displayHour =
+        hours % 12 || 12;
+
+
+    return (
+        displayHour +
+        ":" +
+        minutes +
+        " " +
+        suffix
+    );
+
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHTML(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   STATUS CLASS
+========================================================= */
+
+function statusClass(
+    status
+) {
+
+    return (
+        "status-" +
+        normalizeStatus(
+            status
+        )
+    );
+
+}
+
+
+/* =========================================================
+   RECENT ORDERS
+========================================================= */
+
+function renderRecentOrders() {
+
+    if (!elements.recentOrders) {
         return;
     }
 
 
-    if (orders.length === 0) {
+    const orders =
+        [...RS_APP.orders]
+            .sort(
+                (
+                    a,
+                    b
+                ) => {
 
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">◎</div>
-                <h3>No orders yet</h3>
-                <p>New customer bookings will appear here automatically.</p>
-            </div>
-        `;
+                    const ad =
+                        new Date(
+                            a.created_at ||
+                            a.booking_date ||
+                            0
+                        ).getTime();
+
+
+                    const bd =
+                        new Date(
+                            b.created_at ||
+                            b.booking_date ||
+                            0
+                        ).getTime();
+
+
+                    return bd - ad;
+
+                }
+            )
+            .slice(
+                0,
+                6
+            );
+
+
+    if (
+        orders.length === 0
+    ) {
+
+        elements.recentOrders.innerHTML =
+            emptyStateHTML(
+                "◫",
+                "No orders yet",
+                "Customer bookings will appear here automatically."
+            );
 
         return;
 
     }
 
 
-    container.innerHTML =
-        orders.map(
-            order => {
-
-                const status =
-                    safeText(
-                        order.status ||
-                        "pending"
-                    ).toLowerCase();
-
-
-                return `
-                    <article
-                        class="order-card"
+    elements.recentOrders.innerHTML =
+        orders
+            .map(
+                order =>
+                    `
+                    <button
+                        type="button"
+                        class="order-list-item"
                         data-order-id="${escapeHTML(order.id)}"
                     >
 
-                        <div class="order-main">
+                        <span class="order-avatar">
+                            ${escapeHTML(
+                                initials(
+                                    order.customer_name
+                                )
+                            )}
+                        </span>
 
-                            <div class="order-avatar">
-                                ${escapeHTML(
-                                    safeText(
-                                        order.customer_name
-                                    )
-                                    .charAt(0)
-                                    .toUpperCase()
-                                )}
-                            </div>
-
-                            <div class="order-content">
-
-                                <h3>
-                                    ${escapeHTML(
-                                        order.customer_name ||
-                                        "Unknown Customer"
-                                    )}
-                                </h3>
-
-                                <p>
-                                    ${escapeHTML(
-                                        order.function_type ||
-                                        "Photography Booking"
-                                    )}
-                                </p>
-
-                                <div class="order-meta">
-
-                                    <span>
-                                        ${escapeHTML(
-                                            formatDate(
-                                                order.booking_date
-                                            )
-                                        )}
-                                    </span>
-
-                                    <span>
-                                        ${escapeHTML(
-                                            order.booking_time ||
-                                            "Time not set"
-                                        )}
-                                    </span>
-
-                                    <span>
-                                        ${escapeHTML(
-                                            order.location ||
-                                            "Location not set"
-                                        )}
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="order-side">
-
-                            <span
-                                class="status status-${escapeHTML(
-                                    status
-                                )}"
-                            >
-                                ${escapeHTML(
-                                    status
-                                )}
-                            </span>
+                        <span class="order-main">
 
                             <strong>
                                 ${escapeHTML(
-                                    formatMoney(
-                                        order.expected_money
+                                    order.customer_name ||
+                                    "Customer"
+                                )}
+                            </strong>
+
+                            <small>
+                                ${escapeHTML(
+                                    order.function_type ||
+                                    "Booking"
+                                )}
+                            </small>
+
+                        </span>
+
+                        <span class="order-meta">
+
+                            <strong>
+                                ${escapeHTML(
+                                    formatDate(
+                                        order.booking_date
                                     )
                                 )}
                             </strong>
 
-                            <button
-                                class="small-btn"
-                                type="button"
-                                data-view-order="${escapeHTML(
-                                    order.id
-                                )}"
+                            <small
+                                class="${statusClass(order.status)}"
                             >
-                                View
-                            </button>
+                                ${escapeHTML(
+                                    capitalize(
+                                        normalizeStatus(
+                                            order.status
+                                        )
+                                    )
+                                )}
+                            </small>
 
-                        </div>
+                        </span>
 
-                    </article>
-                `;
-
-            }
-        )
-        .join("");
+                    </button>
+                    `
+            )
+            .join("");
 
 
-    container
+    elements.recentOrders
         .querySelectorAll(
-            "[data-view-order]"
+            "[data-order-id]"
         )
         .forEach(
-            button => {
+            item => {
 
-                button.addEventListener(
+                item.addEventListener(
                     "click",
                     () => {
 
-                        const id =
-                            button.dataset
-                                .viewOrder;
-
-                        openOrder(
-                            id
+                        openOrderDetails(
+                            item.dataset.orderId
                         );
 
                     }
@@ -1142,41 +2423,769 @@ const renderOrders = () => {
             }
         );
 
-};
+}
 
 
 /* =========================================================
-   OPEN ORDER
+   UPCOMING BOOKINGS
 ========================================================= */
 
-const openOrder = id => {
+function renderUpcomingBookings() {
+
+    if (!elements.upcomingBookings) {
+        return;
+    }
+
+
+    const today =
+        startOfToday();
+
+
+    const bookings =
+        RS_APP.orders
+            .filter(
+                order => {
+
+                    const date =
+                        parseDate(
+                            order.booking_date
+                        );
+
+
+                    return (
+                        date &&
+                        date >= today &&
+                        normalizeStatus(
+                            order.status
+                        ) !== "cancelled"
+                    );
+
+                }
+            )
+            .sort(
+                (
+                    a,
+                    b
+                ) => {
+
+                    return (
+                        parseDate(
+                            a.booking_date
+                        ) -
+                        parseDate(
+                            b.booking_date
+                        )
+                    );
+
+                }
+            )
+            .slice(
+                0,
+                5
+            );
+
+
+    if (
+        bookings.length === 0
+    ) {
+
+        elements.upcomingBookings.innerHTML =
+            emptyStateHTML(
+                "◷",
+                "No upcoming bookings",
+                "New confirmed bookings will appear here."
+            );
+
+        return;
+
+    }
+
+
+    elements.upcomingBookings.innerHTML =
+        bookings
+            .map(
+                order =>
+                    `
+                    <button
+                        type="button"
+                        class="booking-list-item"
+                        data-order-id="${escapeHTML(order.id)}"
+                    >
+
+                        <span class="booking-date-box">
+
+                            <strong>
+                                ${escapeHTML(
+                                    dayNumber(
+                                        order.booking_date
+                                    )
+                                )}
+                            </strong>
+
+                            <small>
+                                ${escapeHTML(
+                                    monthShort(
+                                        order.booking_date
+                                    )
+                                )}
+                            </small>
+
+                        </span>
+
+                        <span class="booking-content">
+
+                            <strong>
+                                ${escapeHTML(
+                                    order.customer_name ||
+                                    "Customer"
+                                )}
+                            </strong>
+
+                            <small>
+                                ${escapeHTML(
+                                    order.function_type ||
+                                    "Photography"
+                                )}
+                                ·
+                                ${escapeHTML(
+                                    formatTime(
+                                        order.booking_time
+                                    )
+                                )}
+                            </small>
+
+                        </span>
+
+                        <span class="booking-status ${statusClass(order.status)}">
+                            ${escapeHTML(
+                                capitalize(
+                                    normalizeStatus(
+                                        order.status
+                                    )
+                                )
+                            )}
+                        </span>
+
+                    </button>
+                    `
+            )
+            .join("");
+
+
+    elements.upcomingBookings
+        .querySelectorAll(
+            "[data-order-id]"
+        )
+        .forEach(
+            item => {
+
+                item.addEventListener(
+                    "click",
+                    () => {
+
+                        openOrderDetails(
+                            item.dataset.orderId
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   ORDERS TABLE
+========================================================= */
+
+function renderOrders() {
+
+    if (!elements.ordersTableBody) {
+        return;
+    }
+
+
+    const search =
+        String(
+            elements.orderSearch?.value ||
+            ""
+        )
+            .trim()
+            .toLowerCase();
+
+
+    const statusFilter =
+        String(
+            elements.orderStatusFilter?.value ||
+            "all"
+        )
+            .toLowerCase();
+
+
+    const filtered =
+        RS_APP.orders.filter(
+            order => {
+
+                const searchable =
+                    [
+                        order.customer_name,
+                        order.phone,
+                        order.location,
+                        order.function_type,
+                        order.notes
+                    ]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+
+
+                const matchesSearch =
+                    !search ||
+                    searchable.includes(
+                        search
+                    );
+
+
+                const matchesStatus =
+                    statusFilter === "all" ||
+                    normalizeStatus(
+                        order.status
+                    ) === statusFilter;
+
+
+                return (
+                    matchesSearch &&
+                    matchesStatus
+                );
+
+            }
+        );
+
+
+    if (
+        filtered.length === 0
+    ) {
+
+        elements.ordersTableBody.innerHTML =
+            `
+            <tr>
+                <td
+                    colspan="6"
+                    class="table-empty"
+                >
+                    No matching orders found.
+                </td>
+            </tr>
+            `;
+
+        return;
+
+    }
+
+
+    elements.ordersTableBody.innerHTML =
+        filtered
+            .map(
+                order =>
+                    `
+                    <tr>
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="table-customer"
+                                data-order-id="${escapeHTML(order.id)}"
+                            >
+
+                                <span class="table-avatar">
+                                    ${escapeHTML(
+                                        initials(
+                                            order.customer_name
+                                        )
+                                    )}
+                                </span>
+
+                                <span>
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            order.customer_name ||
+                                            "Customer"
+                                        )}
+                                    </strong>
+
+                                    <small>
+                                        ${escapeHTML(
+                                            order.phone ||
+                                            "No phone"
+                                        )}
+                                    </small>
+
+                                </span>
+
+                            </button>
+
+                        </td>
+
+
+                        <td>
+                            <strong>
+                                ${escapeHTML(
+                                    order.function_type ||
+                                    "Photography"
+                                )}
+                            </strong>
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                ${escapeHTML(
+                                    formatDate(
+                                        order.booking_date
+                                    )
+                                )}
+                            </strong>
+
+                            <small>
+                                ${escapeHTML(
+                                    formatTime(
+                                        order.booking_time
+                                    )
+                                )}
+                            </small>
+
+                        </td>
+
+
+                        <td>
+                            ${escapeHTML(
+                                order.location ||
+                                "—"
+                            )}
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="status-badge ${statusClass(order.status)}"
+                            >
+                                ${escapeHTML(
+                                    capitalize(
+                                        normalizeStatus(
+                                            order.status
+                                        )
+                                    )
+                                )}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="table-action"
+                                data-order-id="${escapeHTML(order.id)}"
+                            >
+                                View
+                            </button>
+
+                        </td>
+
+                    </tr>
+                    `
+            )
+            .join("");
+
+
+    elements.ordersTableBody
+        .querySelectorAll(
+            "[data-order-id]"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        openOrderDetails(
+                            button.dataset.orderId
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   SEARCH / FILTER
+========================================================= */
+
+function setupOrderFilters() {
+
+    if (elements.orderSearch) {
+
+        elements.orderSearch.addEventListener(
+            "input",
+            renderOrders
+        );
+
+    }
+
+
+    if (elements.orderStatusFilter) {
+
+        elements.orderStatusFilter.addEventListener(
+            "change",
+            renderOrders
+        );
+
+    }
+
+
+    if (elements.customerSearch) {
+
+        elements.customerSearch.addEventListener(
+            "input",
+            renderCustomers
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   NEW ORDER MODAL
+========================================================= */
+
+function openOrderModal() {
+
+    if (!elements.orderModal) {
+        return;
+    }
+
+
+    if (elements.orderForm) {
+
+        elements.orderForm.reset();
+
+    }
+
+
+    setInputValue(
+        "orderDate",
+        dateToInputValue(
+            new Date()
+        )
+    );
+
+
+    openModal(
+        elements.orderModal
+    );
+
+}
+
+
+function setupNewOrderButton() {
+
+    if (elements.newOrderButton) {
+
+        elements.newOrderButton.addEventListener(
+            "click",
+            openOrderModal
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ORDER FORM
+========================================================= */
+
+function setupOrderForm() {
+
+    if (!elements.orderForm) {
+        return;
+    }
+
+
+    elements.orderForm.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            const form =
+                new FormData(
+                    elements.orderForm
+                );
+
+
+            const booking = {
+
+                customer_name:
+                    cleanString(
+                        form.get(
+                            "customer_name"
+                        )
+                    ),
+
+                phone:
+                    cleanString(
+                        form.get(
+                            "phone"
+                        )
+                    ),
+
+                location:
+                    cleanString(
+                        form.get(
+                            "location"
+                        )
+                    ),
+
+                function_type:
+                    cleanString(
+                        form.get(
+                            "function_type"
+                        )
+                    ),
+
+                booking_date:
+                    cleanString(
+                        form.get(
+                            "booking_date"
+                        )
+                    ),
+
+                booking_time:
+                    cleanString(
+                        form.get(
+                            "booking_time"
+                        )
+                    ),
+
+                expected_money:
+                    numberOrNull(
+                        form.get(
+                            "expected_money"
+                        )
+                    ),
+
+                status:
+                    cleanString(
+                        form.get(
+                            "status"
+                        )
+                    ) ||
+                    "pending",
+
+                notes:
+                    cleanString(
+                        form.get(
+                            "notes"
+                        )
+                    ) ||
+                    null
+
+            };
+
+
+            if (
+                !booking.customer_name ||
+                !booking.phone ||
+                !booking.location ||
+                !booking.function_type ||
+                !booking.booking_date ||
+                !booking.booking_time
+            ) {
+
+                showToast(
+                    "Please fill all required order fields.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                isPastDateTime(
+                    booking.booking_date,
+                    booking.booking_time
+                )
+            ) {
+
+                showToast(
+                    "Booking date and time must be in the future.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            const submit =
+                elements.orderForm.querySelector(
+                    'button[type="submit"]'
+                );
+
+
+            if (submit) {
+
+                submit.disabled =
+                    true;
+
+                submit.textContent =
+                    "Saving...";
+
+            }
+
+
+            try {
+
+                const supabase =
+                    getSupabase();
+
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabase
+                        .from("orders")
+                        .insert(
+                            booking
+                        )
+                        .select()
+                        .single();
+
+
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+                /*
+                 * Add locally immediately.
+                 */
+
+                if (data) {
+
+                    RS_APP.orders.push(
+                        data
+                    );
+
+                }
+
+
+                buildCustomers();
+
+                updateDashboardStats();
+
+                renderOrders();
+
+                renderRecentOrders();
+
+                renderUpcomingBookings();
+
+                renderCalendar();
+
+                renderCustomers();
+
+
+                closeModal(
+                    elements.orderModal
+                );
+
+
+                showToast(
+                    "Order saved successfully.",
+                    "success"
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Create order error:",
+                    error
+                );
+
+
+                showToast(
+                    friendlyDatabaseError(
+                        error
+                    ),
+                    "error"
+                );
+
+            } finally {
+
+                if (submit) {
+
+                    submit.disabled =
+                        false;
+
+                    submit.textContent =
+                        "Save Order";
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ORDER DETAILS
+========================================================= */
+
+function openOrderDetails(
+    orderId
+) {
 
     const order =
-        orders.find(
+        RS_APP.orders.find(
             item =>
-                String(item.id) ===
-                String(id)
+                String(
+                    item.id
+                ) ===
+                String(
+                    orderId
+                )
         );
 
 
     if (!order) {
-        return;
-    }
 
-
-    selectedOrder =
-        order;
-
-
-    const modal =
-        get("orderModal");
-
-
-    if (!modal) {
-
-        console.log(
-            "Selected order:",
-            order
+        showToast(
+            "Order could not be found.",
+            "error"
         );
 
         return;
@@ -1184,46 +3193,74 @@ const openOrder = id => {
     }
 
 
-    const content =
-        modal.querySelector(
-            ".modal-content"
-        );
+    RS_APP.selectedOrderId =
+        order.id;
 
 
-    if (content) {
+    if (!elements.orderDetailsModal) {
+        return;
+    }
 
-        content.innerHTML = `
 
-            <div class="modal-header">
+    if (elements.orderDetailsContent) {
+
+        elements.orderDetailsContent.innerHTML =
+            `
+            <div class="details-summary">
+
+                <div class="details-avatar">
+                    ${escapeHTML(
+                        initials(
+                            order.customer_name
+                        )
+                    )}
+                </div>
 
                 <div>
-                    <span class="eyebrow">
-                        BOOKING DETAILS
+
+                    <span class="section-kicker">
+                        CUSTOMER
                     </span>
 
-                    <h2>
+                    <h3>
                         ${escapeHTML(
                             order.customer_name ||
                             "Customer"
                         )}
-                    </h2>
-                </div>
+                    </h3>
 
-                <button
-                    type="button"
-                    class="modal-close"
-                    data-close-modal
-                >
-                    ×
-                </button>
+                    <span
+                        class="status-badge ${statusClass(order.status)}"
+                    >
+                        ${escapeHTML(
+                            capitalize(
+                                normalizeStatus(
+                                    order.status
+                                )
+                            )
+                        )}
+                    </span>
+
+                </div>
 
             </div>
 
 
-            <div class="detail-grid">
+            <div class="details-grid">
 
-                <div>
-                    <small>Function</small>
+                <div class="detail-row">
+                    <span>Phone</span>
+                    <strong>
+                        ${escapeHTML(
+                            order.phone ||
+                            "—"
+                        )}
+                    </strong>
+                </div>
+
+
+                <div class="detail-row">
+                    <span>Event</span>
                     <strong>
                         ${escapeHTML(
                             order.function_type ||
@@ -1232,8 +3269,9 @@ const openOrder = id => {
                     </strong>
                 </div>
 
-                <div>
-                    <small>Date</small>
+
+                <div class="detail-row">
+                    <span>Date</span>
                     <strong>
                         ${escapeHTML(
                             formatDate(
@@ -1243,18 +3281,21 @@ const openOrder = id => {
                     </strong>
                 </div>
 
-                <div>
-                    <small>Time</small>
+
+                <div class="detail-row">
+                    <span>Time</span>
                     <strong>
                         ${escapeHTML(
-                            order.booking_time ||
-                            "—"
+                            formatTime(
+                                order.booking_time
+                            )
                         )}
                     </strong>
                 </div>
 
-                <div>
-                    <small>Location</small>
+
+                <div class="detail-row">
+                    <span>Location</span>
                     <strong>
                         ${escapeHTML(
                             order.location ||
@@ -1263,21 +3304,12 @@ const openOrder = id => {
                     </strong>
                 </div>
 
-                <div>
-                    <small>Phone</small>
-                    <strong>
-                        ${escapeHTML(
-                            order.phone ||
-                            "—"
-                        )}
-                    </strong>
-                </div>
 
-                <div>
-                    <small>Expected Amount</small>
+                <div class="detail-row">
+                    <span>Expected amount</span>
                     <strong>
                         ${escapeHTML(
-                            formatMoney(
+                            formatCurrency(
                                 order.expected_money
                             )
                         )}
@@ -1289,7 +3321,9 @@ const openOrder = id => {
 
             <div class="detail-notes">
 
-                <small>Notes</small>
+                <span>
+                    NOTES
+                </span>
 
                 <p>
                     ${escapeHTML(
@@ -1300,355 +3334,231 @@ const openOrder = id => {
 
             </div>
 
-        `;
+
+            <div class="details-actions">
+
+                <button
+                    type="button"
+                    class="secondary-button"
+                    data-detail-status="pending"
+                >
+                    Pending
+                </button>
+
+                <button
+                    type="button"
+                    class="primary-button"
+                    data-detail-status="confirmed"
+                >
+                    Confirm
+                </button>
+
+                <button
+                    type="button"
+                    class="secondary-button"
+                    data-detail-status="completed"
+                >
+                    Complete
+                </button>
+
+                <button
+                    type="button"
+                    class="danger-button"
+                    data-detail-status="cancelled"
+                >
+                    Cancel
+                </button>
+
+            </div>
+            `;
 
 
-        const close =
-            content.querySelector(
-                "[data-close-modal]"
-            );
+        elements.orderDetailsContent
+            .querySelectorAll(
+                "[data-detail-status]"
+            )
+            .forEach(
+                button => {
 
+                    button.addEventListener(
+                        "click",
+                        async () => {
 
-        if (close) {
+                            await updateOrderStatus(
+                                order.id,
+                                button.dataset.detailStatus
+                            );
 
-            close.addEventListener(
-                "click",
-                closeOrderModal
-            );
-
-        }
-
-    }
-
-
-    modal.classList.add(
-        "open"
-    );
-
-
-    modal.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-};
-
-
-/* =========================================================
-   CLOSE ORDER MODAL
-========================================================= */
-
-const closeOrderModal = () => {
-
-    const modal =
-        get("orderModal");
-
-
-    if (!modal) {
-        return;
-    }
-
-
-    modal.classList.remove(
-        "open"
-    );
-
-
-    modal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-
-    selectedOrder = null;
-
-};
-
-
-/* =========================================================
-   MODAL EVENTS
-========================================================= */
-
-const setupModal = () => {
-
-    const modal =
-        get("orderModal");
-
-
-    if (!modal) {
-        return;
-    }
-
-
-    modal.addEventListener(
-        "click",
-        event => {
-
-            if (
-                event.target ===
-                modal
-            ) {
-
-                closeOrderModal();
-
-            }
-
-        }
-    );
-
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key ===
-                "Escape"
-            ) {
-
-                closeOrderModal();
-
-            }
-
-        }
-    );
-
-};
-
-
-/* =========================================================
-   SEARCH ORDERS
-========================================================= */
-
-const setupSearch = () => {
-
-    const search =
-        get("orderSearch");
-
-
-    if (!search) {
-        return;
-    }
-
-
-    search.addEventListener(
-        "input",
-        () => {
-
-            const query =
-                search.value
-                    .trim()
-                    .toLowerCase();
-
-
-            const cards =
-                document.querySelectorAll(
-                    ".order-card"
-                );
-
-
-            cards.forEach(
-                card => {
-
-                    const text =
-                        card.textContent
-                            .toLowerCase();
-
-
-                    card.style.display =
-                        !query ||
-                        text.includes(query)
-                            ? ""
-                            : "none";
+                        }
+                    );
 
                 }
             );
 
-        }
-    );
-
-};
-
-
-/* =========================================================
-   STATUS FILTER
-========================================================= */
-
-const setupStatusFilter = () => {
-
-    const filter =
-        get("statusFilter");
-
-
-    if (!filter) {
-        return;
     }
 
 
-    filter.addEventListener(
-        "change",
-        () => {
+    openModal(
+        elements.orderDetailsModal
+    );
 
-            const selected =
-                filter.value;
-
-
-            const cards =
-                document.querySelectorAll(
-                    ".order-card"
-                );
+}
 
 
-            cards.forEach(
-                card => {
+/* =========================================================
+   UPDATE ORDER STATUS
+========================================================= */
 
-                    if (
-                        selected ===
-                        "all"
-                    ) {
+async function updateOrderStatus(
+    orderId,
+    status
+) {
 
-                        card.style.display =
-                            "";
-
-                        return;
-
-                    }
-
-
-                    const status =
-                        card.querySelector(
-                            ".status"
-                        );
+    const validStatuses = [
+        "pending",
+        "confirmed",
+        "completed",
+        "cancelled"
+    ];
 
 
-                    const current =
+    if (
+        !validStatuses.includes(
+            status
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const supabase =
+            getSupabase();
+
+
+        const {
+            data,
+            error
+        } =
+            await supabase
+                .from("orders")
+                .update({
+                    status:
                         status
-                            ? status.textContent
-                                .trim()
-                                .toLowerCase()
-                            : "";
+                })
+                .eq(
+                    "id",
+                    orderId
+                )
+                .select()
+                .single();
 
 
-                    card.style.display =
-                        current ===
-                        selected
-                            ? ""
-                            : "none";
+        if (error) {
 
-                }
+            throw error;
+
+        }
+
+
+        const index =
+            RS_APP.orders.findIndex(
+                order =>
+                    String(
+                        order.id
+                    ) ===
+                    String(
+                        orderId
+                    )
+            );
+
+
+        if (
+            index !== -1 &&
+            data
+        ) {
+
+            RS_APP.orders[
+                index
+            ] =
+                data;
+
+        }
+
+
+        updateDashboardStats();
+
+        renderOrders();
+
+        renderRecentOrders();
+
+        renderUpcomingBookings();
+
+        renderCalendar();
+
+
+        showToast(
+            "Order status updated.",
+            "success"
+        );
+
+
+        if (
+            elements.orderDetailsModal
+        ) {
+
+            closeModal(
+                elements.orderDetailsModal
             );
 
         }
-    );
-
-};
 
 
-/* =========================================================
-   DASHBOARD STATISTICS
-========================================================= */
+    } catch (error) {
 
-const updateDashboard = () => {
-
-    const total =
-        orders.length;
+        console.error(
+            "Status update error:",
+            error
+        );
 
 
-    const pending =
-        orders.filter(
-            order =>
-                safeText(
-                    order.status
-                ).toLowerCase() ===
-                "pending"
-        ).length;
+        showToast(
+            friendlyDatabaseError(
+                error
+            ),
+            "error"
+        );
 
+    }
 
-    const confirmed =
-        orders.filter(
-            order =>
-                safeText(
-                    order.status
-                ).toLowerCase() ===
-                "confirmed"
-        ).length;
-
-
-    const completed =
-        orders.filter(
-            order =>
-                safeText(
-                    order.status
-                ).toLowerCase() ===
-                "completed"
-        ).length;
-
-
-    const values = {
-
-        totalOrders:
-            total,
-
-        pendingOrders:
-            pending,
-
-        confirmedOrders:
-            confirmed,
-
-        completedOrders:
-            completed
-
-    };
-
-
-    Object.entries(
-        values
-    ).forEach(
-        (
-            [
-                key,
-                value
-            ]
-        ) => {
-
-            const element =
-                document.querySelector(
-                    `[data-stat="${key}"]`
-                );
-
-
-            if (element) {
-                element.textContent =
-                    value;
-            }
-
-        }
-    );
-
-};
+}
 
 
 /* =========================================================
    CALENDAR
 ========================================================= */
 
-const renderCalendar = () => {
+function renderCalendar() {
 
-    const calendar =
-        get("calendar");
+    if (
+        !elements.calendarGrid ||
+        !elements.calendarMonth
+    ) {
 
-
-    if (!calendar) {
         return;
+
     }
 
 
     const year =
-        currentDate.getFullYear();
+        RS_APP.calendarDate.getFullYear();
 
 
     const month =
-        currentDate.getMonth();
+        RS_APP.calendarDate.getMonth();
 
 
     const firstDay =
@@ -1667,16 +3577,16 @@ const renderCalendar = () => {
         );
 
 
-    const startDay =
-        firstDay.getDay();
-
-
-    const totalDays =
+    const daysInMonth =
         lastDay.getDate();
 
 
-    const monthName =
-        currentDate.toLocaleDateString(
+    const startingDay =
+        firstDay.getDay();
+
+
+    elements.calendarMonth.textContent =
+        RS_APP.calendarDate.toLocaleDateString(
             "en-IN",
             {
                 month: "long",
@@ -1685,136 +3595,162 @@ const renderCalendar = () => {
         );
 
 
-    const title =
-        get("calendarTitle");
+    const cells = [];
 
 
-    if (title) {
-        title.textContent =
-            monthName;
-    }
-
-
-    let html = "";
-
-
-    [
-        "Sun",
-        "Mon",
-        "Tue",
-        "Wed",
-        "Thu",
-        "Fri",
-        "Sat"
-    ]
-    .forEach(
-        day => {
-
-            html += `
-                <div class="calendar-weekday">
-                    ${day}
-                </div>
-            `;
-
-        }
-    );
-
+    /*
+     * Previous month cells.
+     */
 
     for (
         let i = 0;
-        i < startDay;
+        i < startingDay;
         i++
     ) {
 
-        html += `
-            <div class="calendar-day empty"></div>
-        `;
+        cells.push(
+            {
+                type:
+                    "empty"
+            }
+        );
 
     }
 
 
+    /*
+     * Current month.
+     */
+
     for (
         let day = 1;
-        day <= totalDays;
+        day <= daysInMonth;
         day++
     ) {
 
-        const dateString =
-            [
-                year,
-                String(
-                    month + 1
-                ).padStart(
-                    2,
-                    "0"
-                ),
-                String(day).padStart(
-                    2,
-                    "0"
-                )
-            ]
-            .join("-");
-
-
-        const dayOrders =
-            orders.filter(
-                order =>
-                    safeText(
-                        order.booking_date
-                    )
-                    .startsWith(
-                        dateString
-                    )
-            );
-
-
-        const isToday =
-            new Date().toDateString() ===
+        const date =
             new Date(
                 year,
                 month,
                 day
-            ).toDateString();
+            );
 
 
-        html += `
+        cells.push(
+            {
+                type:
+                    "day",
 
-            <button
-                type="button"
-                class="
-                    calendar-day
-                    ${isToday ? "today" : ""}
-                    ${dayOrders.length ? "has-order" : ""}
-                "
-                data-calendar-date="${dateString}"
-            >
-
-                <span>
-                    ${day}
-                </span>
-
-                ${
-                    dayOrders.length
-                        ? `
-                            <b>
-                                ${dayOrders.length}
-                            </b>
-                        `
-                        : ""
-                }
-
-            </button>
-
-        `;
+                date:
+                    date
+            }
+        );
 
     }
 
 
-    calendar.innerHTML =
-        html;
+    elements.calendarGrid.innerHTML =
+        cells
+            .map(
+                cell => {
+
+                    if (
+                        cell.type ===
+                        "empty"
+                    ) {
+
+                        return `
+                            <div
+                                class="calendar-cell empty"
+                            ></div>
+                        `;
+
+                    }
 
 
-    calendar
+                    const date =
+                        cell.date;
+
+
+                    const dateValue =
+                        dateToInputValue(
+                            date
+                        );
+
+
+                    const bookings =
+                        RS_APP.orders.filter(
+                            order =>
+                                order.booking_date ===
+                                dateValue
+                        );
+
+
+                    const isToday =
+                        isSameDate(
+                            date,
+                            new Date()
+                        );
+
+
+                    const isSelected =
+                        RS_APP.selectedDate ===
+                        dateValue;
+
+
+                    return `
+                        <button
+                            type="button"
+                            class="
+                                calendar-cell
+                                ${isToday ? "today" : ""}
+                                ${isSelected ? "selected" : ""}
+                                ${bookings.length ? "has-bookings" : ""}
+                            "
+                            data-calendar-date="${dateValue}"
+                        >
+
+                            <span class="calendar-day-number">
+                                ${day}
+                            </span>
+
+                            ${
+                                bookings.length
+                                    ? `
+                                        <span class="calendar-events">
+                                            ${bookings
+                                                .slice(
+                                                    0,
+                                                    3
+                                                )
+                                                .map(
+                                                    booking =>
+                                                        `
+                                                        <span
+                                                            class="calendar-event"
+                                                        >
+                                                            ${escapeHTML(
+                                                                booking.customer_name ||
+                                                                "Booking"
+                                                            )}
+                                                        </span>
+                                                        `
+                                                )
+                                                .join("")}
+                                        </span>
+                                    `
+                                    : ""
+                            }
+
+                        </button>
+                    `;
+
+                }
+            )
+            .join("");
+
+
+    elements.calendarGrid
         .querySelectorAll(
             "[data-calendar-date]"
         )
@@ -1825,32 +3761,9 @@ const renderCalendar = () => {
                     "click",
                     () => {
 
-                        const date =
-                            button.dataset
-                                .calendarDate;
-
-
-                        const matching =
-                            orders.filter(
-                                order =>
-                                    safeText(
-                                        order.booking_date
-                                    )
-                                    .startsWith(
-                                        date
-                                    )
-                            );
-
-
-                        if (
-                            matching.length
-                        ) {
-
-                            openOrder(
-                                matching[0].id
-                            );
-
-                        }
+                        selectCalendarDate(
+                            button.dataset.calendarDate
+                        );
 
                     }
                 );
@@ -1858,35 +3771,233 @@ const renderCalendar = () => {
             }
         );
 
-};
+
+    if (
+        RS_APP.selectedDate
+    ) {
+
+        renderSelectedDay();
+
+    }
+
+}
 
 
 /* =========================================================
-   CALENDAR NAVIGATION
+   CALENDAR DATE SELECTION
 ========================================================= */
 
-const setupCalendarNavigation = () => {
+function selectCalendarDate(
+    date
+) {
 
-    const previous =
-        get("calendarPrev");
-
-
-    const next =
-        get("calendarNext");
+    RS_APP.selectedDate =
+        date;
 
 
-    if (previous) {
+    renderCalendar();
 
-        previous.addEventListener(
+    renderSelectedDay();
+
+}
+
+
+/* =========================================================
+   SELECTED DAY
+========================================================= */
+
+function renderSelectedDay() {
+
+    if (
+        !elements.selectedDayBookings ||
+        !elements.selectedDateTitle
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        !RS_APP.selectedDate
+    ) {
+
+        elements.selectedDateTitle.textContent =
+            "Select a date";
+
+
+        elements.selectedDayBookings.innerHTML =
+            emptyStateHTML(
+                "□",
+                "",
+                "Select a date to view bookings."
+            );
+
+
+        return;
+
+    }
+
+
+    elements.selectedDateTitle.textContent =
+        formatDate(
+            RS_APP.selectedDate,
+            {
+                day:
+                    "numeric",
+
+                month:
+                    "long",
+
+                year:
+                    "numeric"
+            }
+        );
+
+
+    const bookings =
+        RS_APP.orders
+            .filter(
+                order =>
+                    order.booking_date ===
+                    RS_APP.selectedDate
+            )
+            .sort(
+                (
+                    a,
+                    b
+                ) =>
+                    String(
+                        a.booking_time ||
+                        ""
+                    ).localeCompare(
+                        String(
+                            b.booking_time ||
+                            ""
+                        )
+                    )
+            );
+
+
+    if (
+        bookings.length === 0
+    ) {
+
+        elements.selectedDayBookings.innerHTML =
+            emptyStateHTML(
+                "□",
+                "No bookings",
+                "Nothing is scheduled for this date."
+            );
+
+        return;
+
+    }
+
+
+    elements.selectedDayBookings.innerHTML =
+        bookings
+            .map(
+                order =>
+                    `
+                    <button
+                        type="button"
+                        class="selected-booking"
+                        data-order-id="${escapeHTML(order.id)}"
+                    >
+
+                        <span class="selected-booking-time">
+                            ${escapeHTML(
+                                formatTime(
+                                    order.booking_time
+                                )
+                            )}
+                        </span>
+
+                        <span class="selected-booking-info">
+
+                            <strong>
+                                ${escapeHTML(
+                                    order.customer_name ||
+                                    "Customer"
+                                )}
+                            </strong>
+
+                            <small>
+                                ${escapeHTML(
+                                    order.function_type ||
+                                    "Photography"
+                                )}
+                                ·
+                                ${escapeHTML(
+                                    order.location ||
+                                    "—"
+                                )}
+                            </small>
+
+                        </span>
+
+                        <span
+                            class="status-badge ${statusClass(order.status)}"
+                        >
+                            ${escapeHTML(
+                                capitalize(
+                                    normalizeStatus(
+                                        order.status
+                                    )
+                                )
+                            )}
+                        </span>
+
+                    </button>
+                    `
+            )
+            .join("");
+
+
+    elements.selectedDayBookings
+        .querySelectorAll(
+            "[data-order-id]"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        openOrderDetails(
+                            button.dataset.orderId
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   CALENDAR CONTROLS
+========================================================= */
+
+function setupCalendarControls() {
+
+    if (elements.previousMonth) {
+
+        elements.previousMonth.addEventListener(
             "click",
             () => {
 
-                currentDate =
+                RS_APP.calendarDate =
                     new Date(
-                        currentDate.getFullYear(),
-                        currentDate.getMonth() - 1,
+                        RS_APP.calendarDate.getFullYear(),
+                        RS_APP.calendarDate.getMonth() - 1,
                         1
                     );
+
 
                 renderCalendar();
 
@@ -1896,18 +4007,19 @@ const setupCalendarNavigation = () => {
     }
 
 
-    if (next) {
+    if (elements.nextMonth) {
 
-        next.addEventListener(
+        elements.nextMonth.addEventListener(
             "click",
             () => {
 
-                currentDate =
+                RS_APP.calendarDate =
                     new Date(
-                        currentDate.getFullYear(),
-                        currentDate.getMonth() + 1,
+                        RS_APP.calendarDate.getFullYear(),
+                        RS_APP.calendarDate.getMonth() + 1,
                         1
                     );
+
 
                 renderCalendar();
 
@@ -1916,161 +4028,946 @@ const setupCalendarNavigation = () => {
 
     }
 
-};
+
+    if (elements.todayButton) {
+
+        elements.todayButton.addEventListener(
+            "click",
+            () => {
+
+                const today =
+                    new Date();
+
+
+                RS_APP.calendarDate =
+                    new Date(
+                        today.getFullYear(),
+                        today.getMonth(),
+                        1
+                    );
+
+
+                RS_APP.selectedDate =
+                    dateToInputValue(
+                        today
+                    );
+
+
+                renderCalendar();
+
+                renderSelectedDay();
+
+            }
+        );
+
+    }
+
+}
 
 
 /* =========================================================
-   MOBILE SIDEBAR
+   CUSTOMERS
 ========================================================= */
 
-const setupMobileMenu = () => {
+function renderCustomers() {
 
-    const menuButton =
-        get("mobileMenuBtn");
-
-
-    const sidebar =
-        get("sidebar");
-
-
-    const overlay =
-        get("sidebarOverlay");
-
-
-    if (!menuButton) {
+    if (!elements.customersGrid) {
         return;
     }
 
 
-    const close = () => {
-
-        if (sidebar) {
-            sidebar.classList.remove(
-                "open"
-            );
-        }
-
-        if (overlay) {
-            overlay.classList.remove(
-                "open"
-            );
-        }
-
-    };
+    const search =
+        String(
+            elements.customerSearch?.value ||
+            ""
+        )
+            .trim()
+            .toLowerCase();
 
 
-    menuButton.addEventListener(
-        "click",
-        () => {
+    const customers =
+        RS_APP.customers.filter(
+            customer => {
 
-            if (sidebar) {
-                sidebar.classList.toggle(
-                    "open"
+                const text =
+                    [
+                        customer.name,
+                        customer.phone,
+                        customer.location
+                    ]
+                        .join(" ")
+                        .toLowerCase();
+
+
+                return (
+                    !search ||
+                    text.includes(
+                        search
+                    )
                 );
+
+            }
+        );
+
+
+    if (
+        customers.length === 0
+    ) {
+
+        elements.customersGrid.innerHTML =
+            emptyStateHTML(
+                "◎",
+                "No customers yet",
+                "Customers will be created automatically from orders."
+            );
+
+        return;
+
+    }
+
+
+    elements.customersGrid.innerHTML =
+        customers
+            .map(
+                customer =>
+                    `
+                    <article class="customer-card">
+
+                        <div class="customer-card-top">
+
+                            <div class="customer-avatar">
+                                ${escapeHTML(
+                                    initials(
+                                        customer.name
+                                    )
+                                )}
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    ${escapeHTML(
+                                        customer.name
+                                    )}
+                                </h3>
+
+                                <p>
+                                    ${escapeHTML(
+                                        customer.phone
+                                    )}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="customer-details">
+
+                            <div>
+                                <span>
+                                    LOCATION
+                                </span>
+
+                                <strong>
+                                    ${escapeHTML(
+                                        customer.location
+                                    )}
+                                </strong>
+                            </div>
+
+
+                            <div>
+                                <span>
+                                    BOOKINGS
+                                </span>
+
+                                <strong>
+                                    ${escapeHTML(
+                                        customer.bookings
+                                    )}
+                                </strong>
+                            </div>
+
+
+                            <div>
+                                <span>
+                                    LAST BOOKING
+                                </span>
+
+                                <strong>
+                                    ${escapeHTML(
+                                        formatDate(
+                                            customer.lastDate
+                                        )
+                                    )}
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </article>
+                    `
+            )
+            .join("");
+
+}
+
+
+/* =========================================================
+   CONTRACTS
+========================================================= */
+
+function renderContracts() {
+
+    if (!elements.contractsGrid) {
+        return;
+    }
+
+
+    if (
+        RS_APP.contracts.length === 0
+    ) {
+
+        elements.contractsGrid.innerHTML =
+            emptyStateHTML(
+                "▤",
+                "No contracts yet",
+                "Create a contract and it will appear here."
+            );
+
+        return;
+
+    }
+
+
+    elements.contractsGrid.innerHTML =
+        RS_APP.contracts
+            .map(
+                contract =>
+                    `
+                    <article class="contract-card">
+
+                        <div class="contract-top">
+
+                            <div class="contract-icon">
+                                ▤
+                            </div>
+
+                            <span
+                                class="status-badge contract-${escapeHTML(
+                                    normalizeStatus(
+                                        contract.status
+                                    )
+                                )}"
+                            >
+                                ${escapeHTML(
+                                    capitalize(
+                                        normalizeStatus(
+                                            contract.status
+                                        )
+                                    )
+                                )}
+                            </span>
+
+                        </div>
+
+
+                        <h3>
+                            ${escapeHTML(
+                                contract.customer_name ||
+                                "Client Contract"
+                            )}
+                        </h3>
+
+
+                        <p>
+                            Contract date:
+                            ${escapeHTML(
+                                formatDate(
+                                    contract.contract_date
+                                )
+                            )}
+                        </p>
+
+
+                        <strong>
+                            ${escapeHTML(
+                                formatCurrency(
+                                    contract.amount
+                                )
+                            )}
+                        </strong>
+
+
+                        ${
+                            contract.notes
+                                ? `
+                                    <div class="contract-notes">
+                                        ${escapeHTML(
+                                            contract.notes
+                                        )}
+                                    </div>
+                                `
+                                : ""
+                        }
+
+                    </article>
+                    `
+            )
+            .join("");
+
+}
+
+
+/* =========================================================
+   NEW CONTRACT
+========================================================= */
+
+function setupContractButton() {
+
+    if (elements.newContractButton) {
+
+        elements.newContractButton.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    elements.contractForm
+                ) {
+
+                    elements.contractForm.reset();
+
+                }
+
+
+                setInputValue(
+                    "contractDate",
+                    dateToInputValue(
+                        new Date()
+                    )
+                );
+
+
+                openModal(
+                    elements.contractModal
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CONTRACT FORM
+========================================================= */
+
+function setupContractForm() {
+
+    if (!elements.contractForm) {
+        return;
+    }
+
+
+    elements.contractForm.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            const form =
+                new FormData(
+                    elements.contractForm
+                );
+
+
+            const contract = {
+
+                customer_name:
+                    cleanString(
+                        form.get(
+                            "customer_name"
+                        )
+                    ),
+
+                contract_date:
+                    cleanString(
+                        form.get(
+                            "contract_date"
+                        )
+                    ),
+
+                amount:
+                    numberOrNull(
+                        form.get(
+                            "amount"
+                        )
+                    ),
+
+                status:
+                    cleanString(
+                        form.get(
+                            "status"
+                        )
+                    ) ||
+                    "draft",
+
+                notes:
+                    cleanString(
+                        form.get(
+                            "notes"
+                        )
+                    ) ||
+                    null
+
+            };
+
+
+            if (
+                !contract.customer_name ||
+                !contract.contract_date
+            ) {
+
+                showToast(
+                    "Customer and contract date are required.",
+                    "error"
+                );
+
+                return;
+
             }
 
-            if (overlay) {
-                overlay.classList.toggle(
-                    "open"
+
+            const submit =
+                elements.contractForm.querySelector(
+                    'button[type="submit"]'
                 );
+
+
+            if (submit) {
+
+                submit.disabled =
+                    true;
+
+                submit.textContent =
+                    "Saving...";
+
+            }
+
+
+            try {
+
+                const supabase =
+                    getSupabase();
+
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabase
+                        .from("contracts")
+                        .insert(
+                            contract
+                        )
+                        .select()
+                        .single();
+
+
+                if (error) {
+
+                    throw error;
+
+                }
+
+
+                if (data) {
+
+                    RS_APP.contracts.unshift(
+                        data
+                    );
+
+                }
+
+
+                renderContracts();
+
+                closeModal(
+                    elements.contractModal
+                );
+
+
+                showToast(
+                    "Contract saved successfully.",
+                    "success"
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Contract creation error:",
+                    error
+                );
+
+
+                showToast(
+                    friendlyDatabaseError(
+                        error
+                    ),
+                    "error"
+                );
+
+            } finally {
+
+                if (submit) {
+
+                    submit.disabled =
+                        false;
+
+                    submit.textContent =
+                        "Save Contract";
+
+                }
+
             }
 
         }
     );
 
+}
 
-    if (overlay) {
 
-        overlay.addEventListener(
-            "click",
-            close
-        );
+/* =========================================================
+   STUDIO SETTINGS
+========================================================= */
+
+function setupStudioSettings() {
+
+    if (
+        !elements.studioSettingsForm
+    ) {
+
+        return;
 
     }
 
 
-    document
-        .querySelectorAll(
-            ".sidebar a"
-        )
-        .forEach(
-            link => {
+    elements.studioSettingsForm.addEventListener(
+        "submit",
+        event => {
 
-                link.addEventListener(
-                    "click",
-                    close
-                );
+            event.preventDefault();
+
+
+            /*
+             * This is currently stored locally.
+             *
+             * If you later create a studio_settings table,
+             * this function can save it to Supabase.
+             */
+
+            const settings = {
+
+                studio_name:
+                    elements.studioName?.value ||
+                    "RS Photography",
+
+                studio_phone:
+                    elements.studioPhone?.value ||
+                    "",
+
+                studio_location:
+                    elements.studioLocation?.value ||
+                    ""
+
+            };
+
+
+            localStorage.setItem(
+                "rsPhotographyStudioSettings",
+                JSON.stringify(
+                    settings
+                )
+            );
+
+
+            showToast(
+                "Studio settings saved.",
+                "success"
+            );
+
+        }
+    );
+
+
+    loadStudioSettings();
+
+}
+
+
+/* =========================================================
+   LOAD STUDIO SETTINGS
+========================================================= */
+
+function loadStudioSettings() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                "rsPhotographyStudioSettings"
+            );
+
+
+        if (!saved) {
+            return;
+        }
+
+
+        const settings =
+            JSON.parse(
+                saved
+            );
+
+
+        if (
+            elements.studioName &&
+            settings.studio_name
+        ) {
+
+            elements.studioName.value =
+                settings.studio_name;
+
+        }
+
+
+        if (
+            elements.studioPhone
+        ) {
+
+            elements.studioPhone.value =
+                settings.studio_phone ||
+                "";
+
+        }
+
+
+        if (
+            elements.studioLocation
+        ) {
+
+            elements.studioLocation.value =
+                settings.studio_location ||
+                "";
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Studio settings could not be loaded.",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   GALLERY
+========================================================= */
+
+function setupGalleryButton() {
+
+    if (
+        !elements.uploadGalleryButton
+    ) {
+
+        return;
+
+    }
+
+
+    elements.uploadGalleryButton.addEventListener(
+        "click",
+        () => {
+
+            showToast(
+                "Gallery storage is not connected yet.",
+                "warning"
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+function updateNotificationState() {
+
+    const pending =
+        RS_APP.orders.filter(
+            order =>
+                normalizeStatus(
+                    order.status
+                ) ===
+                "pending"
+        ).length;
+
+
+    if (
+        elements.notificationDot
+    ) {
+
+        elements.notificationDot.classList.toggle(
+            "hidden",
+            pending === 0
+        );
+
+    }
+
+}
+
+
+function setupNotifications() {
+
+    if (
+        elements.notificationButton
+    ) {
+
+        elements.notificationButton.addEventListener(
+            "click",
+            () => {
+
+                const pending =
+                    RS_APP.orders.filter(
+                        order =>
+                            normalizeStatus(
+                                order.status
+                            ) ===
+                            "pending"
+                    ).length;
+
+
+                if (pending > 0) {
+
+                    showToast(
+                        `${pending} pending booking${pending === 1 ? "" : "s"}.`,
+                        "warning"
+                    );
+
+                    navigateToPage(
+                        "ordersPage"
+                    );
+
+                } else {
+
+                    showToast(
+                        "No new booking notifications.",
+                        "success"
+                    );
+
+                }
 
             }
         );
 
-};
+    }
+
+}
 
 
 /* =========================================================
-   SECTION NAVIGATION
+   REFRESH
 ========================================================= */
 
-const setupNavigation = () => {
+function setupRefresh() {
 
-    const links =
-        document.querySelectorAll(
-            "[data-section]"
+    if (
+        !elements.refreshButton
+    ) {
+
+        return;
+
+    }
+
+
+    elements.refreshButton.addEventListener(
+        "click",
+        async () => {
+
+            if (
+                RS_APP.refreshing
+            ) {
+
+                return;
+
+            }
+
+
+            elements.refreshButton.classList.add(
+                "spinning"
+            );
+
+
+            try {
+
+                await refreshAllData();
+
+
+                showToast(
+                    "Dashboard refreshed.",
+                    "success"
+                );
+
+
+            } finally {
+
+                elements.refreshButton.classList.remove(
+                    "spinning"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+function openModal(
+    modal
+) {
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.add(
+        "open"
+    );
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.classList.add(
+        "modal-open"
+    );
+
+
+    setTimeout(
+        () => {
+
+            const firstInput =
+                modal.querySelector(
+                    "input, textarea, select"
+                );
+
+
+            if (firstInput) {
+
+                firstInput.focus();
+
+            }
+
+        },
+        50
+    );
+
+}
+
+
+function closeModal(
+    modal
+) {
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.remove(
+        "open"
+    );
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    if (
+        !document.querySelector(
+            ".modal.open"
+        )
+    ) {
+
+        document.body.classList.remove(
+            "modal-open"
         );
 
+    }
 
-    links.forEach(
-        link => {
+}
 
-            link.addEventListener(
+
+function closeAllModals() {
+
+    $all(
+        ".modal.open"
+    ).forEach(
+        modal => {
+
+            closeModal(
+                modal
+            );
+
+        }
+    );
+
+}
+
+
+function setupModalControls() {
+
+    $all(
+        "[data-close-modal]"
+    ).forEach(
+        button => {
+
+            button.addEventListener(
                 "click",
-                event => {
+                () => {
 
-                    const id =
-                        link.dataset
-                            .section;
-
-
-                    if (!id) {
-                        return;
-                    }
+                    const modalId =
+                        button.dataset.closeModal;
 
 
-                    const section =
-                        get(id);
-
-
-                    if (!section) {
-                        return;
-                    }
-
-
-                    event.preventDefault();
-
-
-                    document
-                        .querySelectorAll(
-                            "[data-section]"
+                    closeModal(
+                        document.getElementById(
+                            modalId
                         )
-                        .forEach(
-                            item =>
-                                item.classList.remove(
-                                    "active"
-                                )
-                        );
-
-
-                    link.classList.add(
-                        "active"
                     );
-
-
-                    section.scrollIntoView({
-                        behavior:
-                            "smooth",
-                        block:
-                            "start"
-                    });
 
                 }
             );
@@ -2078,201 +4975,522 @@ const setupNavigation = () => {
         }
     );
 
-};
 
+    $all(
+        ".modal-backdrop"
+    ).forEach(
+        backdrop => {
 
-/* =========================================================
-   REALTIME ORDER UPDATES
-========================================================= */
-
-const setupRealtime = () => {
-
-    if (!supabaseClient) {
-        return;
-    }
-
-
-    supabaseClient
-        .channel(
-            "rs-photography-orders"
-        )
-        .on(
-            "postgres_changes",
-            {
-                event: "*",
-                schema: "public",
-                table: "orders"
-            },
-            payload => {
-
-                console.log(
-                    "ORDER UPDATE:",
-                    payload
-                );
-
-
-                loadOrders();
-
-            }
-        )
-        .subscribe();
-
-};
-
-
-/* =========================================================
-   REFRESH BUTTON
-========================================================= */
-
-const setupRefresh = () => {
-
-    const button =
-        get("refreshOrders");
-
-
-    if (!button) {
-        return;
-    }
-
-
-    button.addEventListener(
-        "click",
-        async () => {
-
-            button.disabled =
-                true;
-
-
-            await loadOrders();
-
-
-            setTimeout(
+            backdrop.addEventListener(
+                "click",
                 () => {
 
-                    button.disabled =
-                        false;
+                    const modal =
+                        backdrop.closest(
+                            ".modal"
+                        );
 
-                },
-                500
+
+                    closeModal(
+                        modal
+                    );
+
+                }
             );
 
         }
     );
 
-};
 
+    document.addEventListener(
+        "keydown",
+        event => {
 
-/* =========================================================
-   DATE VALIDATION
-========================================================= */
+            if (
+                event.key ===
+                "Escape"
+            ) {
 
-const setupDateInputs = () => {
+                closeAllModals();
 
-    document
-        .querySelectorAll(
-            'input[type="date"]'
-        )
-        .forEach(
-            input => {
-
-                /*
-                   Owner dashboard should normally
-                   allow historical dates too, so we
-                   intentionally do not force min=today.
-                */
-
-                input.addEventListener(
-                    "change",
-                    () => {
-
-                        if (
-                            input.value
-                        ) {
-
-                            input.classList.add(
-                                "has-value"
-                            );
-
-                        }
-
-                    }
-                );
+                closeSidebar();
 
             }
-        );
 
-};
+        }
+    );
+
+}
 
 
 /* =========================================================
-   PREVENT ACCIDENTAL FORM URL
+   KEYBOARD PROTECTION
 ========================================================= */
 
-const preventPasswordInURL = () => {
+function setupGlobalProtection() {
 
     /*
-       Older versions of the owner website could
-       produce URLs like:
+     * Prevent accidental form submission from creating
+     * query-string credentials.
+     *
+     * Login has its own explicit submit listener.
+     */
 
-       ?email=...&password=...
+    if (elements.loginForm) {
 
-       Remove those query parameters immediately.
+        elements.loginForm.setAttribute(
+            "method",
+            "post"
+        );
 
-       Passwords should never be stored in a URL.
-    */
+        elements.loginForm.setAttribute(
+            "action",
+            "#"
+        );
 
-    const url =
-        new URL(
-            window.location.href
+    }
+
+}
+
+
+/* =========================================================
+   UTILITY: EMPTY STATE
+========================================================= */
+
+function emptyStateHTML(
+    icon,
+    title,
+    message
+) {
+
+    return `
+        <div class="empty-state">
+
+            <span class="empty-icon">
+                ${escapeHTML(icon)}
+            </span>
+
+            ${
+                title
+                    ? `
+                        <h4>
+                            ${escapeHTML(title)}
+                        </h4>
+                    `
+                    : ""
+            }
+
+            <p>
+                ${escapeHTML(message)}
+            </p>
+
+        </div>
+    `;
+
+}
+
+
+/* =========================================================
+   UTILITY: INITIALS
+========================================================= */
+
+function initials(
+    name
+) {
+
+    const value =
+        String(
+            name ||
+            "RS"
+        )
+            .trim();
+
+
+    if (!value) {
+        return "RS";
+    }
+
+
+    const words =
+        value.split(
+            /\s+/
         );
 
 
     if (
-        url.searchParams.has("password") ||
-        url.searchParams.has("email")
+        words.length === 1
     ) {
 
-        url.searchParams.delete(
-            "password"
-        );
-
-        url.searchParams.delete(
-            "email"
-        );
-
-
-        window.history.replaceState(
-            {},
-            document.title,
-            url.pathname +
-            url.search +
-            url.hash
-        );
+        return words[0]
+            .substring(
+                0,
+                2
+            )
+            .toUpperCase();
 
     }
 
-};
+
+    return (
+        words[0][0] +
+        words[words.length - 1][0]
+    )
+        .toUpperCase();
+
+}
 
 
 /* =========================================================
-   CURRENT YEAR
+   UTILITY: CAPITALIZE
 ========================================================= */
 
-const setYear = () => {
+function capitalize(
+    value
+) {
 
-    const year =
-        get("year");
+    const string =
+        String(
+            value ||
+            ""
+        );
 
 
-    if (year) {
+    return string.charAt(0).toUpperCase() +
+        string.slice(1);
 
-        year.textContent =
-            new Date()
-                .getFullYear();
+}
+
+
+/* =========================================================
+   UTILITY: CLEAN STRING
+========================================================= */
+
+function cleanString(
+    value
+) {
+
+    return String(
+        value ??
+        ""
+    )
+        .trim();
+
+}
+
+
+/* =========================================================
+   UTILITY: NUMBER
+========================================================= */
+
+function numberOrNull(
+    value
+) {
+
+    const string =
+        String(
+            value ??
+            ""
+        )
+            .trim();
+
+
+    if (!string) {
+        return null;
+    }
+
+
+    const number =
+        Number(
+            string
+        );
+
+
+    return Number.isFinite(
+        number
+    )
+        ? number
+        : null;
+
+}
+
+
+/* =========================================================
+   UTILITY: INPUT VALUE
+========================================================= */
+
+function setInputValue(
+    id,
+    value
+) {
+
+    const input =
+        document.getElementById(
+            id
+        );
+
+
+    if (input) {
+
+        input.value =
+            value;
 
     }
 
-};
+}
+
+
+/* =========================================================
+   UTILITY: DATE TO INPUT
+========================================================= */
+
+function dateToInputValue(
+    date
+) {
+
+    if (!date) {
+        return "";
+    }
+
+
+    const year =
+        date.getFullYear();
+
+
+    const month =
+        String(
+            date.getMonth() + 1
+        )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+    const day =
+        String(
+            date.getDate()
+        )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+    return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+    );
+
+}
+
+
+/* =========================================================
+   UTILITY: TODAY
+========================================================= */
+
+function startOfToday() {
+
+    const today =
+        new Date();
+
+
+    return new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+    );
+
+}
+
+
+/* =========================================================
+   UTILITY: SAME DATE
+========================================================= */
+
+function isSameDate(
+    first,
+    second
+) {
+
+    return (
+        first.getFullYear() ===
+        second.getFullYear() &&
+
+        first.getMonth() ===
+        second.getMonth() &&
+
+        first.getDate() ===
+        second.getDate()
+    );
+
+}
+
+
+/* =========================================================
+   UTILITY: DAY NUMBER
+========================================================= */
+
+function dayNumber(
+    value
+) {
+
+    const date =
+        parseDate(
+            value
+        );
+
+
+    return date
+        ? date.getDate()
+        : "—";
+
+}
+
+
+/* =========================================================
+   UTILITY: MONTH
+========================================================= */
+
+function monthShort(
+    value
+) {
+
+    const date =
+        parseDate(
+            value
+        );
+
+
+    return date
+        ? date.toLocaleDateString(
+            "en-IN",
+            {
+                month: "short"
+            }
+        )
+        : "—";
+
+}
+
+
+/* =========================================================
+   FUTURE DATE/TIME VALIDATION
+========================================================= */
+
+function isPastDateTime(
+    dateString,
+    timeString
+) {
+
+    if (
+        !dateString ||
+        !timeString
+    ) {
+
+        return false;
+
+    }
+
+
+    const target =
+        new Date(
+            `${dateString}T${timeString}`
+        );
+
+
+    if (
+        Number.isNaN(
+            target.getTime()
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    return (
+        target.getTime() <=
+        Date.now()
+    );
+
+}
+
+
+/* =========================================================
+   DATABASE ERROR
+========================================================= */
+
+function friendlyDatabaseError(
+    error
+) {
+
+    const message =
+        String(
+            error?.message ||
+            ""
+        );
+
+
+    if (
+        message.includes(
+            "relation"
+        ) &&
+        message.includes(
+            "does not exist"
+        )
+    ) {
+
+        return "The required Supabase table does not exist yet.";
+
+    }
+
+
+    if (
+        message.includes(
+            "permission denied"
+        ) ||
+        message.includes(
+            "row-level security"
+        )
+    ) {
+
+        return "Supabase Row Level Security is blocking this operation.";
+
+    }
+
+
+    if (
+        message.includes(
+            "violates row-level security policy"
+        )
+    ) {
+
+        return "Your Supabase RLS policy does not allow this operation.";
+
+    }
+
+
+    if (
+        message.includes(
+            "duplicate"
+        )
+    ) {
+
+        return "This record already exists.";
+
+    }
+
+
+    return (
+        message ||
+        "Database operation failed."
+    );
+
+}
 
 
 /* =========================================================
@@ -2284,7 +5502,7 @@ window.addEventListener(
     event => {
 
         console.error(
-            "Website error:",
+            "RS Photography JavaScript error:",
             event.error ||
             event.message
         );
@@ -2298,7 +5516,7 @@ window.addEventListener(
     event => {
 
         console.error(
-            "Unhandled promise error:",
+            "RS Photography promise error:",
             event.reason
         );
 
@@ -2307,160 +5525,210 @@ window.addEventListener(
 
 
 /* =========================================================
-   APPLICATION START
+   INITIAL APPLICATION START
 ========================================================= */
 
-const startApplication = async () => {
+async function initializeApplication() {
+
+    if (
+        RS_APP.initialized
+    ) {
+
+        return;
+
+    }
+
+
+    RS_APP.initialized =
+        true;
+
+
+    console.log(
+        "RS Photography Owner Dashboard starting..."
+    );
+
 
     /*
-       First remove the old insecure
-       email/password URL.
-    */
+     * Configure URL cleanup immediately.
+     */
 
-    preventPasswordInURL();
-
-
-    setYear();
+    cleanAuthenticationUrl();
 
 
     /*
-       These are UI-only and must never
-       block the application.
-    */
+     * Basic UI.
+     */
 
-    setupLoginForm();
+    setupLogin();
 
-    setupLogout();
+    setupPasswordToggle();
 
-    setupModal();
+    setupLogoutButtons();
 
-    setupSearch();
+    setupSidebar();
 
-    setupStatusFilter();
+    setupOrderFilters();
 
-    setupCalendarNavigation();
+    setupNewOrderButton();
 
-    setupMobileMenu();
+    setupOrderForm();
 
-    setupNavigation();
+    setupCalendarControls();
+
+    setupContractButton();
+
+    setupContractForm();
+
+    setupStudioSettings();
+
+    setupGalleryButton();
+
+    setupNotifications();
 
     setupRefresh();
 
-    setupDateInputs();
+    setupModalControls();
+
+    setupGlobalProtection();
+
+
+    updateCurrentDate();
 
 
     /*
-       Initial UI state.
-    */
+     * Start calendar on current month.
+     */
 
-    showLoginScreen();
+    const today =
+        new Date();
+
+
+    RS_APP.calendarDate =
+        new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+        );
+
+
+    RS_APP.selectedDate =
+        dateToInputValue(
+            today
+        );
+
 
     renderCalendar();
 
 
+    /*
+     * Wait for Supabase client.
+     *
+     * Normally supabase.js executes first because
+     * both scripts are loaded with defer in order.
+     */
+
+    let attempts =
+        0;
+
+
+    while (
+        (
+            typeof window.supabaseClient ===
+            "undefined" ||
+            !window.supabaseClient
+        ) &&
+        attempts < 50
+    ) {
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    100
+                )
+        );
+
+
+        attempts++;
+
+    }
+
+
+    /*
+     * If Supabase still isn't available,
+     * show a useful error instead of infinite loading.
+     */
+
+    if (
+        !window.supabaseClient
+    ) {
+
+        console.error(
+            "Supabase client unavailable."
+        );
+
+
+        showLoginMessage(
+            "Database connection is unavailable. Check supabase.js and the Supabase library.",
+            "error"
+        );
+
+
+        setLoginLoading(
+            false
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+     * Authentication listener.
+     */
+
+    setupAuthListener();
+
+
+    /*
+     * Check existing persistent session.
+     */
+
     try {
 
-        setLoading(
-            true,
-            "Connecting..."
-        );
+        const session =
+            await getCurrentSession();
 
 
-        /*
-           Create Supabase client.
-        */
+        if (session) {
 
-        await initializeSupabase();
+            RS_APP.session =
+                session;
 
+            RS_APP.user =
+                session.user;
 
-        console.log(
-            "Supabase client initialized."
-        );
-
-
-        /*
-           Check current login session.
-           If already logged in, the user
-           goes directly to dashboard.
-        */
-
-        const loggedIn =
-            await checkSession();
+            RS_APP.authenticated =
+                true;
 
 
-        /*
-           Listen for login/logout changes.
-        */
+            await enterDashboard();
 
-        listenForAuthChanges();
+        } else {
 
+            showLoginScreen();
 
-        /*
-           If already logged in,
-           load dashboard data.
-        */
-
-        if (loggedIn) {
-
-            updateUserDetails();
-
-            await loadOrders();
-
-            updateDashboard();
-
-            setupRealtime();
+            setLoginLoading(
+                false
+            );
 
         }
 
-
-        /*
-           Connection test is deliberately
-           non-blocking.
-        */
-
-        testConnection()
-            .then(
-                connected => {
-
-                    if (connected) {
-
-                        console.log(
-                            "Supabase connection working."
-                        );
-
-                    } else {
-
-                        console.warn(
-                            "Supabase connection check failed."
-                        );
-
-                    }
-
-                }
-            )
-            .catch(
-                error => {
-
-                    console.warn(
-                        "Connection check:",
-                        error
-                    );
-
-                }
-            );
-
-
     } catch (error) {
 
-        /*
-           CRITICAL:
-
-           Never leave the user stuck on
-           an infinite loading screen.
-        */
-
         console.error(
-            "APPLICATION START ERROR:",
+            "Initial session check failed:",
             error
         );
 
@@ -2468,29 +5736,28 @@ const startApplication = async () => {
         showLoginScreen();
 
 
-        showMessage(
-            "The website could not connect to Supabase. Check your internet connection.",
+        showLoginMessage(
+            "Could not verify your login session.",
             "error"
         );
 
 
-    } finally {
-
-        /*
-           ALWAYS stop loader.
-        */
-
-        setLoading(
+        setLoginLoading(
             false
         );
 
     }
 
-};
+
+    console.log(
+        "RS Photography Owner Dashboard initialized."
+    );
+
+}
 
 
 /* =========================================================
-   DOM START
+   DOM READY
 ========================================================= */
 
 if (
@@ -2500,7 +5767,7 @@ if (
 
     document.addEventListener(
         "DOMContentLoaded",
-        startApplication,
+        initializeApplication,
         {
             once: true
         }
@@ -2508,36 +5775,6 @@ if (
 
 } else {
 
-    startApplication();
+    initializeApplication();
 
 }
-
-
-/* =========================================================
-   EMERGENCY LOADER FALLBACK
-========================================================= */
-
-/*
-   Even if another unrelated JavaScript error
-   happens, never trap the owner in a permanent
-   loading screen.
-*/
-
-setTimeout(
-    () => {
-
-        const loader =
-            get("appLoader");
-
-
-        if (loader) {
-
-            loader.classList.remove(
-                "show"
-            );
-
-        }
-
-    },
-    5000
-);
