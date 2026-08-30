@@ -1,67 +1,120 @@
-
-
 /* =========================================================
    RS PHOTOGRAPHY
    OWNER DASHBOARD
-   SUPABASE CONNECTION
+   SUPABASE.JS
+   ---------------------------------------------------------
+   Purpose:
+   - Initialize Supabase
+   - Persistent authentication
+   - Auto refresh sessions
+   - Make supabaseClient available to script.js
+
+   IMPORTANT:
+   - NEVER put database password here.
+   - NEVER put a service_role/secret key here.
+   - Only use the publishable/anon frontend key.
 ========================================================= */
 
 "use strict";
 
-/*
- * Supabase project URL
- *
- * IMPORTANT:
- * Replace this ONLY if your actual Supabase project URL
- * is different.
- */
-const SUPABASE_URL =
+
+/* =========================================================
+   SUPABASE CONFIGURATION
+========================================================= */
+
+const RS_SUPABASE_URL =
     "https://dazguesfusfmvgfwuqnk.supabase.co";
 
-
-/*
- * Supabase publishable key
- *
- * This is safe to use in browser-side code when your
- * database is correctly protected with Row Level Security.
- */
-const SUPABASE_PUBLISHABLE_KEY =
+const RS_SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_oZnvdj_k5vp8_gK_Xh3Lg_a3mgpJ4T";
 
 
 /* =========================================================
-   CONNECTION CHECK
+   CLIENT INITIALIZATION
 ========================================================= */
 
-if (
-    typeof window.supabase === "undefined"
-) {
+(function initializeSupabase() {
 
-    console.error(
-        "RS Photography: Supabase library was not loaded."
-    );
+    try {
 
-} else {
+        /* Check Supabase library */
 
-    /*
-     * Create the client used by script.js
-     */
-    window.supabaseClient =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_PUBLISHABLE_KEY,
-            {
-                auth: {
-                    persistSession: true,
-                    autoRefreshToken: true,
-                    detectSessionInUrl: true
+        if (
+            !window.supabase ||
+            typeof window.supabase.createClient !== "function"
+        ) {
+
+            console.error(
+                "RS Photography: Supabase library was not loaded."
+            );
+
+            window.supabaseClient = null;
+
+            return;
+        }
+
+
+        /* Create client */
+
+        window.supabaseClient =
+            window.supabase.createClient(
+                RS_SUPABASE_URL,
+                RS_SUPABASE_PUBLISHABLE_KEY,
+                {
+                    auth: {
+
+                        /*
+                         * Keep owner logged in after refresh.
+                         */
+                        persistSession: true,
+
+                        /*
+                         * Automatically refresh expired
+                         * access tokens.
+                         */
+                        autoRefreshToken: true,
+
+                        /*
+                         * Allows Supabase to process
+                         * authentication URL parameters.
+                         */
+                        detectSessionInUrl: true
+                    },
+
+                    global: {
+
+                        headers: {
+                            "x-application-name":
+                                "RS-Photography-Owner"
+                        }
+
+                    }
                 }
-            }
+            );
+
+
+        console.log(
+            "RS Photography: Supabase client initialized."
         );
 
 
-    console.log(
-        "RS Photography: Supabase client initialized."
-    );
+        /*
+         * Helpful global connection state.
+         */
+        window.rsSupabaseReady = true;
 
-}
+
+    } catch (error) {
+
+        console.error(
+            "RS Photography: Supabase initialization failed:",
+            error
+        );
+
+        window.supabaseClient = null;
+
+        window.rsSupabaseReady = false;
+
+    }
+
+})();
