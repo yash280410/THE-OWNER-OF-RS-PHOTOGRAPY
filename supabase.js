@@ -16,7 +16,7 @@
  * is different.
  */
 const SUPABASE_URL =
-    "https://YOUR-PROJECT-REF.supabase.co";
+    "https://dazguesfusfmvgfwuqnk.supabase.co";
 
 
 /*
