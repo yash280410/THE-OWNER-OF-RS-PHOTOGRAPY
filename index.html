@@ -9,53 +9,21 @@
     >
 
     <meta
-        name="theme-color"
-        content="#111111"
-    >
-
-    <meta
         name="description"
         content="RS Photography Owner Dashboard"
     >
 
+    <meta
+        name="theme-color"
+        content="#151515"
+    >
+
     <title>RS Photography | Owner Dashboard</title>
 
-    <!-- =====================================================
-         GOOGLE FONT
-    ====================================================== -->
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-    <!-- =====================================================
-         ICONS
-    ====================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        integrity="sha512-SnH5WK+bZxgPHs44jmZQvA3j4sT3lN6u5W0gW8Z8v6D0n6r0K6h4r4l1wXx1l9zW1v2n8f8N5G6F7Y8Q9R0S1T2U3V4W5X6Y7Z8=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"
-    >
-
-    <!-- =====================================================
-         MAIN CSS
-    ====================================================== -->
-
+    <!--
+        Main stylesheet.
+        We will create this in STEP 2.
+    -->
     <link
         rel="stylesheet"
         href="style.css"
@@ -64,50 +32,54 @@
 
 <body>
 
-<!-- =========================================================
-     APPLICATION LOADER
-========================================================= -->
+    <!-- =====================================================
+         APPLICATION LOADER
+         ===================================================== -->
 
-<div
-    id="appLoader"
-    class="app-loader"
-    aria-hidden="true"
->
+    <div
+        id="app-loader"
+        class="app-loader"
+        aria-live="polite"
+    >
 
-    <div class="loader-content">
+        <div class="loader-brand">
+            <span class="loader-logo">RS</span>
 
-        <div class="loader-logo">
-            RS
+            <span class="loader-title">
+                RS Photography
+            </span>
         </div>
 
-        <div class="loader-spinner"></div>
+        <div
+            class="loader-spinner"
+            aria-hidden="true"
+        ></div>
 
-        <p>
-            Loading RS Photography...
+        <p id="loader-message">
+            Preparing your studio...
         </p>
 
     </div>
 
-</div>
 
+    <!-- =====================================================
+         LOGIN SCREEN
+         IMPORTANT:
+         This is visible by default.
+         The owner dashboard is NOT visible here.
+         ===================================================== -->
 
-<!-- =========================================================
-     LOGIN SCREEN
-========================================================= -->
+    <section
+        id="login-screen"
+        class="login-screen"
+        aria-labelledby="login-title"
+    >
 
-<section
-    id="loginScreen"
-    class="login-screen"
-    aria-labelledby="loginTitle"
->
+        <div class="login-background"></div>
 
-    <div class="login-background"></div>
+        <div class="login-wrapper">
 
-    <div class="login-container">
-
-        <div class="login-card">
-
-            <!-- Logo -->
+            <!-- Brand -->
 
             <div class="login-brand">
 
@@ -115,561 +87,404 @@
                     RS
                 </div>
 
-                <div class="brand-text">
+                <div>
+                    <p class="brand-name">
+                        RS Photography
+                    </p>
 
-                    <span>
-                        RS
-                    </span>
-
-                    <strong>
-                        PHOTOGRAPHY
-                    </strong>
-
+                    <p class="brand-subtitle">
+                        Owner Studio
+                    </p>
                 </div>
 
             </div>
 
 
-            <!-- Heading -->
+            <!-- Login card -->
 
-            <div class="login-heading">
+            <div class="login-card">
 
-                <span class="eyebrow">
-                    PRIVATE AREA
-                </span>
+                <div class="login-heading">
 
-                <h1 id="loginTitle">
-                    Owner Dashboard
-                </h1>
+                    <p class="eyebrow">
+                        PRIVATE STUDIO
+                    </p>
 
-                <p>
-                    Sign in to manage your photography business.
-                </p>
+                    <h1 id="login-title">
+                        Welcome back
+                    </h1>
 
-            </div>
-
-
-            <!-- Login Form -->
-
-            <form
-                id="loginForm"
-                novalidate
-            >
-
-                <!-- Email -->
-
-                <div class="form-group">
-
-                    <label
-                        for="loginEmail"
-                    >
-                        Email address
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i
-                            class="fa-solid fa-envelope"
-                            aria-hidden="true"
-                        ></i>
-
-                        <input
-                            type="email"
-                            id="loginEmail"
-                            name="email"
-                            placeholder="Enter your email"
-                            autocomplete="username"
-                            required
-                        >
-
-                    </div>
+                    <p>
+                        Sign in to manage your photography studio.
+                    </p>
 
                 </div>
 
 
-                <!-- Password -->
-
-                <div class="form-group">
-
-                    <label
-                        for="loginPassword"
-                    >
-                        Password
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <i
-                            class="fa-solid fa-lock"
-                            aria-hidden="true"
-                        ></i>
-
-                        <input
-                            type="password"
-                            id="loginPassword"
-                            name="password"
-                            placeholder="Enter your password"
-                            autocomplete="current-password"
-                            required
-                        >
-
-                        <button
-                            type="button"
-                            id="togglePassword"
-                            class="password-toggle"
-                            aria-label="Show password"
-                            aria-pressed="false"
-                        >
-                            <i
-                                class="fa-solid fa-eye"
-                                aria-hidden="true"
-                            ></i>
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Remember -->
-
-                <div class="login-options">
-
-                    <label class="checkbox-label">
-
-                        <input
-                            type="checkbox"
-                            id="rememberLogin"
-                        >
-
-                        <span>
-                            Remember me
-                        </span>
-
-                    </label>
-
-                </div>
-
-
-                <!-- Error / Success -->
-
-                <div
-                    id="loginMessage"
-                    class="form-message"
-                    role="alert"
-                    aria-live="polite"
-                    hidden
-                ></div>
-
-
-                <!-- Login Button -->
-
-                <button
-                    type="submit"
-                    id="loginButton"
-                    class="primary-button login-button"
+                <form
+                    id="login-form"
+                    class="login-form"
+                    novalidate
                 >
 
-                    <span
-                        id="loginButtonText"
+                    <!-- Email -->
+
+                    <div class="form-field">
+
+                        <label
+                            for="login-email"
+                        >
+                            Email address
+                        </label>
+
+                        <input
+                            id="login-email"
+                            name="email"
+                            type="email"
+                            autocomplete="username"
+                            placeholder="owner@example.com"
+                            required
+                        >
+
+                        <small
+                            id="login-email-error"
+                            class="field-error"
+                        ></small>
+
+                    </div>
+
+
+                    <!-- Password -->
+
+                    <div class="form-field">
+
+                        <div class="field-label-row">
+
+                            <label
+                                for="login-password"
+                            >
+                                Password
+                            </label>
+
+                        </div>
+
+
+                        <div class="password-input">
+
+                            <input
+                                id="login-password"
+                                name="password"
+                                type="password"
+                                autocomplete="current-password"
+                                placeholder="Enter your password"
+                                required
+                            >
+
+                            <button
+                                id="toggle-password"
+                                class="password-toggle"
+                                type="button"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                            >
+                                Show
+                            </button>
+
+                        </div>
+
+                        <small
+                            id="login-password-error"
+                            class="field-error"
+                        ></small>
+
+                    </div>
+
+
+                    <!-- Login message -->
+
+                    <div
+                        id="login-message"
+                        class="login-message"
+                        role="alert"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <!-- Submit -->
+
+                    <button
+                        id="login-submit"
+                        class="primary-button login-submit"
+                        type="submit"
                     >
-                        Sign In
+
+                        <span
+                            id="login-submit-text"
+                        >
+                            Sign in
+                        </span>
+
+                        <span
+                            id="login-submit-spinner"
+                            class="button-spinner"
+                            aria-hidden="true"
+                        ></span>
+
+                    </button>
+
+                </form>
+
+
+                <div class="login-footer">
+
+                    <span class="secure-dot"></span>
+
+                    <span>
+                        Secure owner access
                     </span>
 
-                    <span
-                        id="loginButtonLoader"
-                        class="button-loader"
-                        hidden
-                    ></span>
-
-                </button>
-
-            </form>
-
-
-            <div class="login-footer">
-
-                <i
-                    class="fa-solid fa-shield-halved"
-                    aria-hidden="true"
-                ></i>
-
-                <span>
-                    Secure owner access
-                </span>
+                </div>
 
             </div>
+
+
+            <p class="login-copyright">
+                © <span id="login-year"></span>
+                RS Photography
+            </p>
 
         </div>
 
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     MAIN APPLICATION
-========================================================= -->
-
-<div
-    id="app"
-    class="application"
-    hidden
->
+    </section>
 
 
     <!-- =====================================================
-         SIDEBAR
-    ====================================================== -->
+         OWNER APPLICATION
+         
+         VERY IMPORTANT:
+         Hidden from HTML itself.
+         
+         Even if JavaScript crashes, the dashboard
+         does NOT become visible.
+         ===================================================== -->
 
-    <aside
-        id="sidebar"
-        class="sidebar"
+    <main
+        id="owner-app"
+        class="owner-app"
+        hidden
     >
 
-        <div class="sidebar-inner">
+        <!-- =================================================
+             SIDEBAR
+             ================================================= -->
 
-            <!-- Brand -->
+        <aside
+            id="sidebar"
+            class="sidebar"
+        >
 
-            <div class="sidebar-brand">
+            <div class="sidebar-top">
 
-                <div class="brand-mark">
-                    RS
-                </div>
+                <!-- Logo -->
 
-                <div class="brand-text">
+                <div class="sidebar-brand">
 
-                    <span>
+                    <div class="brand-mark small">
                         RS
-                    </span>
+                    </div>
 
-                    <strong>
-                        PHOTOGRAPHY
-                    </strong>
+                    <div class="sidebar-brand-text">
+
+                        <strong>
+                            RS Photography
+                        </strong>
+
+                        <span>
+                            Owner Studio
+                        </span>
+
+                    </div>
 
                 </div>
+
+
+                <!-- Navigation -->
+
+                <nav
+                    class="main-navigation"
+                    aria-label="Main navigation"
+                >
+
+                    <p class="navigation-label">
+                        MANAGEMENT
+                    </p>
+
+
+                    <button
+                        class="nav-item active"
+                        type="button"
+                        data-section="dashboard"
+                    >
+
+                        <span class="nav-icon">
+                            ◈
+                        </span>
+
+                        <span>
+                            Dashboard
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="nav-item"
+                        type="button"
+                        data-section="bookings"
+                    >
+
+                        <span class="nav-icon">
+                            ▣
+                        </span>
+
+                        <span>
+                            Bookings
+                        </span>
+
+                        <span
+                            id="nav-booking-count"
+                            class="nav-count"
+                        >
+                            0
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="nav-item"
+                        type="button"
+                        data-section="calendar"
+                    >
+
+                        <span class="nav-icon">
+                            □
+                        </span>
+
+                        <span>
+                            Calendar
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="nav-item"
+                        type="button"
+                        data-section="contracts"
+                    >
+
+                        <span class="nav-icon">
+                            ▤
+                        </span>
+
+                        <span>
+                            Contracts
+                        </span>
+
+                    </button>
+
+
+                    <p class="navigation-label second">
+                        STUDIO
+                    </p>
+
+
+                    <button
+                        class="nav-item"
+                        type="button"
+                        data-section="gallery"
+                    >
+
+                        <span class="nav-icon">
+                            ▧
+                        </span>
+
+                        <span>
+                            Gallery
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="nav-item"
+                        type="button"
+                        data-section="notifications"
+                    >
+
+                        <span class="nav-icon">
+                            ♢
+                        </span>
+
+                        <span>
+                            Notifications
+                        </span>
+
+                        <span
+                            id="nav-notification-count"
+                            class="nav-count"
+                        >
+                            0
+                        </span>
+
+                    </button>
+
+
+                    <button
+                        class="nav-item"
+                        type="button"
+                        data-section="settings"
+                    >
+
+                        <span class="nav-icon">
+                            ⚙
+                        </span>
+
+                        <span>
+                            Settings
+                        </span>
+
+                    </button>
+
+                </nav>
 
             </div>
-
-
-            <!-- Navigation -->
-
-            <nav
-                class="sidebar-navigation"
-                aria-label="Main navigation"
-            >
-
-                <button
-                    type="button"
-                    class="nav-item active"
-                    data-section="dashboard"
-                >
-
-                    <i
-                        class="fa-solid fa-chart-line"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span>
-                        Dashboard
-                    </span>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="nav-item"
-                    data-section="orders"
-                >
-
-                    <i
-                        class="fa-solid fa-calendar-check"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span>
-                        Bookings
-                    </span>
-
-                    <span
-                        id="ordersNavBadge"
-                        class="nav-badge"
-                        hidden
-                    >
-                        0
-                    </span>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="nav-item"
-                    data-section="calendar"
-                >
-
-                    <i
-                        class="fa-solid fa-calendar-days"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span>
-                        Calendar
-                    </span>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="nav-item"
-                    data-section="contracts"
-                >
-
-                    <i
-                        class="fa-solid fa-file-signature"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span>
-                        Contracts
-                    </span>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="nav-item"
-                    data-section="gallery"
-                >
-
-                    <i
-                        class="fa-solid fa-images"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span>
-                        Gallery
-                    </span>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    class="nav-item"
-                    data-section="notifications"
-                >
-
-                    <i
-                        class="fa-solid fa-bell"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span>
-                        Notifications
-                    </span>
-
-                    <span
-                        id="notificationNavBadge"
-                        class="nav-badge"
-                        hidden
-                    >
-                        0
-                    </span>
-
-                </button>
-
-            </nav>
 
 
             <!-- Sidebar bottom -->
 
             <div class="sidebar-bottom">
 
-                <button
-                    type="button"
-                    class="nav-item"
-                    data-section="settings"
-                >
-
-                    <i
-                        class="fa-solid fa-gear"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span>
-                        Studio Settings
-                    </span>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    id="sidebarLogout"
-                    class="nav-item logout-item"
-                >
-
-                    <i
-                        class="fa-solid fa-right-from-bracket"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span>
-                        Sign Out
-                    </span>
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </aside>
-
-
-    <!-- =====================================================
-         MOBILE OVERLAY
-    ====================================================== -->
-
-    <div
-        id="sidebarOverlay"
-        class="sidebar-overlay"
-        hidden
-    ></div>
-
-
-    <!-- =====================================================
-         MAIN CONTENT
-    ====================================================== -->
-
-    <main
-        id="mainContent"
-        class="main-content"
-    >
-
-
-        <!-- =================================================
-             TOP HEADER
-        ================================================== -->
-
-        <header
-            id="topHeader"
-            class="top-header"
-        >
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    id="mobileMenuButton"
-                    class="icon-button mobile-menu-button"
-                    aria-label="Open navigation"
-                    aria-expanded="false"
-                >
-
-                    <i
-                        class="fa-solid fa-bars"
-                        aria-hidden="true"
-                    ></i>
-
-                </button>
-
-
-                <div class="header-title">
-
-                    <span
-                        id="currentSectionLabel"
-                        class="header-eyebrow"
-                    >
-                        OWNER DASHBOARD
-                    </span>
-
-                    <h1
-                        id="pageTitle"
-                    >
-                        Dashboard
-                    </h1>
-
-                </div>
-
-            </div>
-
-
-            <div class="header-right">
-
                 <div
-                    id="currentDate"
-                    class="current-date"
-                >
-                    Loading date...
-                </div>
-
-
-                <button
-                    type="button"
-                    id="refreshButton"
-                    class="icon-button"
-                    title="Refresh"
-                    aria-label="Refresh dashboard"
-                >
-
-                    <i
-                        class="fa-solid fa-rotate"
-                        aria-hidden="true"
-                    ></i>
-
-                </button>
-
-
-                <button
-                    type="button"
-                    id="notificationButton"
-                    class="icon-button notification-button"
-                    title="Notifications"
-                    aria-label="Open notifications"
-                >
-
-                    <i
-                        class="fa-solid fa-bell"
-                        aria-hidden="true"
-                    ></i>
-
-                    <span
-                        id="headerNotificationBadge"
-                        class="notification-dot"
-                        hidden
-                    ></span>
-
-                </button>
-
-
-                <div
-                    id="userProfile"
-                    class="user-profile"
+                    id="sidebar-user"
+                    class="sidebar-user"
                 >
 
                     <div
-                        id="userAvatar"
+                        id="sidebar-avatar"
                         class="user-avatar"
                     >
-                        RS
+                        O
                     </div>
 
-                    <div class="user-info">
+                    <div class="user-details">
 
-                        <strong
-                            id="userName"
-                        >
+                        <strong id="sidebar-user-name">
                             Owner
                         </strong>
 
-                        <span
-                            id="userEmail"
-                        >
+                        <span id="sidebar-user-email">
                             —
                         </span>
 
@@ -677,190 +492,451 @@
 
                 </div>
 
+
+                <button
+                    id="sidebar-logout"
+                    class="logout-button"
+                    type="button"
+                >
+                    Sign out
+                </button>
+
             </div>
 
-        </header>
+        </aside>
 
 
         <!-- =================================================
-             GLOBAL APPLICATION MESSAGE
-        ================================================== -->
+             MOBILE OVERLAY
+             ================================================= -->
 
         <div
-            id="globalMessage"
-            class="global-message"
-            role="status"
-            aria-live="polite"
-            hidden
+            id="sidebar-overlay"
+            class="sidebar-overlay"
+            aria-hidden="true"
         ></div>
 
 
         <!-- =================================================
-             CONTENT WRAPPER
-        ================================================== -->
+             MAIN AREA
+             ================================================= -->
 
-        <div class="content-wrapper">
+        <div class="main-shell">
 
 
             <!-- =================================================
-                 DASHBOARD SECTION
-            ================================================== -->
+                 TOP HEADER
+                 ================================================= -->
 
-            <section
-                id="section-dashboard"
-                class="page-section active"
-                data-page="dashboard"
-            >
+            <header class="top-header">
 
-                <div class="section-header">
+                <div class="header-left">
+
+                    <button
+                        id="mobile-menu-button"
+                        class="icon-button mobile-menu-button"
+                        type="button"
+                        aria-label="Open menu"
+                        aria-expanded="false"
+                    >
+                        ☰
+                    </button>
+
 
                     <div>
 
-                        <span class="section-eyebrow">
-                            OVERVIEW
-                        </span>
-
-                        <h2>
-                            Studio Overview
-                        </h2>
-
-                        <p>
-                            Manage your photography business from one place.
+                        <p
+                            id="header-section-label"
+                            class="header-eyebrow"
+                        >
+                            OWNER DASHBOARD
                         </p>
+
+                        <h2 id="header-title">
+                            Dashboard
+                        </h2>
 
                     </div>
 
+                </div>
+
+
+                <div class="header-right">
+
+                    <!-- Date -->
+
+                    <div class="header-date">
+
+                        <span class="header-date-label">
+                            TODAY
+                        </span>
+
+                        <strong id="current-date">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <!-- Notifications -->
+
                     <button
+                        id="header-notification-button"
+                        class="icon-button notification-button"
                         type="button"
-                        id="dashboardNewOrderButton"
-                        class="primary-button"
+                        aria-label="Notifications"
                     >
 
-                        <i
-                            class="fa-solid fa-plus"
-                            aria-hidden="true"
-                        ></i>
+                        <span aria-hidden="true">
+                            ♢
+                        </span>
 
-                        New Booking
+                        <span
+                            id="header-notification-badge"
+                            class="notification-badge"
+                            hidden
+                        >
+                            0
+                        </span>
 
                     </button>
 
-                </div>
 
+                    <!-- User -->
 
-                <!-- Statistics -->
+                    <div class="header-user">
 
-                <div class="stats-grid">
-
-                    <article class="stat-card">
-
-                        <div class="stat-icon">
-                            <i
-                                class="fa-solid fa-calendar-check"
-                                aria-hidden="true"
-                            ></i>
+                        <div
+                            id="header-avatar"
+                            class="user-avatar"
+                        >
+                            O
                         </div>
 
-                        <div class="stat-content">
+                        <div class="header-user-text">
 
-                            <span>
-                                Total Bookings
-                            </span>
-
-                            <strong
-                                id="statTotalOrders"
-                            >
-                                0
+                            <strong id="header-user-name">
+                                Owner
                             </strong>
 
-                        </div>
-
-                    </article>
-
-
-                    <article class="stat-card">
-
-                        <div class="stat-icon">
-                            <i
-                                class="fa-solid fa-clock"
-                                aria-hidden="true"
-                            ></i>
-                        </div>
-
-                        <div class="stat-content">
-
                             <span>
-                                Pending
+                                Studio Owner
                             </span>
 
-                            <strong
-                                id="statPendingOrders"
-                            >
-                                0
-                            </strong>
-
                         </div>
 
-                    </article>
-
-
-                    <article class="stat-card">
-
-                        <div class="stat-icon">
-                            <i
-                                class="fa-solid fa-circle-check"
-                                aria-hidden="true"
-                            ></i>
-                        </div>
-
-                        <div class="stat-content">
-
-                            <span>
-                                Confirmed
-                            </span>
-
-                            <strong
-                                id="statConfirmedOrders"
-                            >
-                                0
-                            </strong>
-
-                        </div>
-
-                    </article>
-
-
-                    <article class="stat-card">
-
-                        <div class="stat-icon">
-                            <i
-                                class="fa-solid fa-indian-rupee-sign"
-                                aria-hidden="true"
-                            ></i>
-                        </div>
-
-                        <div class="stat-content">
-
-                            <span>
-                                Expected Revenue
-                            </span>
-
-                            <strong
-                                id="statRevenue"
-                            >
-                                ₹0
-                            </strong>
-
-                        </div>
-
-                    </article>
+                    </div>
 
                 </div>
 
+            </header>
 
-                <!-- Recent bookings -->
 
-                <div class="dashboard-grid">
+            <!-- =================================================
+                 CONTENT
+                 ================================================= -->
+
+            <div class="content-area">
+
+
+                <!-- =================================================
+                     DASHBOARD SECTION
+                     ================================================= -->
+
+                <section
+                    id="section-dashboard"
+                    class="app-section active"
+                    data-section-panel="dashboard"
+                >
+
+                    <div class="page-introduction">
+
+                        <div>
+
+                            <p class="section-eyebrow">
+                                OVERVIEW
+                            </p>
+
+                            <h1>
+                                Studio Overview
+                            </h1>
+
+                            <p class="section-description">
+                                Manage your photography business from one place.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            id="new-booking-button"
+                            class="primary-button"
+                            type="button"
+                        >
+                            + New Booking
+                        </button>
+
+                    </div>
+
+
+                    <!-- Statistics -->
+
+                    <div class="stats-grid">
+
+
+                        <article class="stat-card">
+
+                            <div class="stat-icon">
+                                ▣
+                            </div>
+
+                            <div>
+
+                                <p>
+                                    Total Bookings
+                                </p>
+
+                                <strong
+                                    id="stat-total-bookings"
+                                >
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </article>
+
+
+                        <article class="stat-card">
+
+                            <div class="stat-icon">
+                                ◷
+                            </div>
+
+                            <div>
+
+                                <p>
+                                    Pending
+                                </p>
+
+                                <strong
+                                    id="stat-pending"
+                                >
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </article>
+
+
+                        <article class="stat-card">
+
+                            <div class="stat-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <p>
+                                    Confirmed
+                                </p>
+
+                                <strong
+                                    id="stat-confirmed"
+                                >
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </article>
+
+
+                        <article class="stat-card">
+
+                            <div class="stat-icon">
+                                ₹
+                            </div>
+
+                            <div>
+
+                                <p>
+                                    Expected Revenue
+                                </p>
+
+                                <strong
+                                    id="stat-revenue"
+                                >
+                                    ₹0
+                                </strong>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+
+                    <!-- Dashboard grid -->
+
+                    <div class="dashboard-grid">
+
+
+                        <!-- Upcoming bookings -->
+
+                        <article class="panel large-panel">
+
+                            <div class="panel-header">
+
+                                <div>
+
+                                    <p class="panel-eyebrow">
+                                        SCHEDULE
+                                    </p>
+
+                                    <h2>
+                                        Upcoming Bookings
+                                    </h2>
+
+                                </div>
+
+                                <button
+                                    class="text-button"
+                                    type="button"
+                                    data-section-link="bookings"
+                                >
+                                    View all
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                id="dashboard-upcoming-bookings"
+                                class="booking-list"
+                            >
+
+                                <div class="empty-state">
+
+                                    <div class="empty-icon">
+                                        □
+                                    </div>
+
+                                    <h3>
+                                        No upcoming bookings
+                                    </h3>
+
+                                    <p>
+                                        New bookings will appear here.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+
+                        <!-- Quick actions -->
+
+                        <article class="panel">
+
+                            <div class="panel-header">
+
+                                <div>
+
+                                    <p class="panel-eyebrow">
+                                        ACTIONS
+                                    </p>
+
+                                    <h2>
+                                        Quick Actions
+                                    </h2>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="quick-actions">
+
+                                <button
+                                    type="button"
+                                    class="quick-action"
+                                    data-action="new-booking"
+                                >
+
+                                    <span>
+                                        +
+                                    </span>
+
+                                    <div>
+                                        <strong>
+                                            New Booking
+                                        </strong>
+
+                                        <small>
+                                            Add a customer booking
+                                        </small>
+                                    </div>
+
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="quick-action"
+                                    data-section-link="calendar"
+                                >
+
+                                    <span>
+                                        □
+                                    </span>
+
+                                    <div>
+                                        <strong>
+                                            Open Calendar
+                                        </strong>
+
+                                        <small>
+                                            View studio schedule
+                                        </small>
+                                    </div>
+
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="quick-action"
+                                    data-section-link="gallery"
+                                >
+
+                                    <span>
+                                        ▧
+                                    </span>
+
+                                    <div>
+                                        <strong>
+                                            Manage Gallery
+                                        </strong>
+
+                                        <small>
+                                            Manage studio media
+                                        </small>
+                                    </div>
+
+                                </button>
+
+                            </div>
+
+                        </article>
+
+                    </div>
+
+
+                    <!-- Recent bookings -->
 
                     <article class="panel">
 
@@ -868,410 +944,252 @@
 
                             <div>
 
-                                <span class="panel-eyebrow">
-                                    BOOKINGS
-                                </span>
+                                <p class="panel-eyebrow">
+                                    ACTIVITY
+                                </p>
 
-                                <h3>
+                                <h2>
                                     Recent Bookings
-                                </h3>
+                                </h2>
 
                             </div>
 
                             <button
-                                type="button"
                                 class="text-button"
-                                data-section-link="orders"
+                                type="button"
+                                data-section-link="bookings"
                             >
-                                View All
+                                Manage bookings
                             </button>
 
                         </div>
 
+
                         <div
-                            id="recentOrders"
-                            class="recent-orders"
-                        ></div>
+                            id="dashboard-recent-bookings"
+                            class="table-container"
+                        >
 
-                    </article>
-
-
-                    <!-- Today -->
-
-                    <article class="panel">
-
-                        <div class="panel-header">
-
-                            <div>
-
-                                <span class="panel-eyebrow">
-                                    TODAY
-                                </span>
+                            <div class="empty-state compact">
 
                                 <h3>
-                                    Today's Schedule
+                                    No booking activity yet
                                 </h3>
+
+                                <p>
+                                    Customer bookings will appear here.
+                                </p>
 
                             </div>
 
                         </div>
 
-                        <div
-                            id="todaySchedule"
-                            class="today-schedule"
-                        ></div>
-
                     </article>
 
-                </div>
+                </section>
 
-            </section>
 
+                <!-- =================================================
+                     BOOKINGS
+                     ================================================= -->
 
-            <!-- =================================================
-                 ORDERS SECTION
-            ================================================== -->
+                <section
+                    id="section-bookings"
+                    class="app-section"
+                    data-section-panel="bookings"
+                    hidden
+                >
 
-            <section
-                id="section-orders"
-                class="page-section"
-                data-page="orders"
-                hidden
-            >
+                    <div class="page-introduction">
 
-                <div class="section-header">
+                        <div>
 
-                    <div>
+                            <p class="section-eyebrow">
+                                MANAGEMENT
+                            </p>
 
-                        <span class="section-eyebrow">
-                            BOOKINGS
-                        </span>
+                            <h1>
+                                Bookings
+                            </h1>
 
-                        <h2>
-                            Booking Management
-                        </h2>
-
-                        <p>
-                            View and manage customer booking requests.
-                        </p>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        id="newOrderButton"
-                        class="primary-button"
-                    >
-
-                        <i
-                            class="fa-solid fa-plus"
-                            aria-hidden="true"
-                        ></i>
-
-                        New Booking
-
-                    </button>
-
-                </div>
-
-
-                <!-- Filters -->
-
-                <div class="filter-panel">
-
-                    <div class="search-box">
-
-                        <i
-                            class="fa-solid fa-magnifying-glass"
-                            aria-hidden="true"
-                        ></i>
-
-                        <input
-                            type="search"
-                            id="orderSearch"
-                            placeholder="Search bookings..."
-                            autocomplete="off"
-                        >
-
-                    </div>
-
-
-                    <select
-                        id="orderStatusFilter"
-                        class="filter-select"
-                    >
-
-                        <option value="all">
-                            All Status
-                        </option>
-
-                        <option value="pending">
-                            Pending
-                        </option>
-
-                        <option value="confirmed">
-                            Confirmed
-                        </option>
-
-                        <option value="completed">
-                            Completed
-                        </option>
-
-                        <option value="cancelled">
-                            Cancelled
-                        </option>
-
-                    </select>
-
-
-                    <select
-                        id="orderFunctionFilter"
-                        class="filter-select"
-                    >
-
-                        <option value="all">
-                            All Functions
-                        </option>
-
-                        <option value="wedding">
-                            Wedding
-                        </option>
-
-                        <option value="pre-wedding">
-                            Pre-Wedding
-                        </option>
-
-                        <option value="engagement">
-                            Engagement
-                        </option>
-
-                        <option value="birthday">
-                            Birthday
-                        </option>
-
-                        <option value="portrait">
-                            Portrait
-                        </option>
-
-                        <option value="maternity">
-                            Maternity
-                        </option>
-
-                        <option value="other">
-                            Other
-                        </option>
-
-                    </select>
-
-
-                    <button
-                        type="button"
-                        id="clearOrderFilters"
-                        class="secondary-button"
-                    >
-
-                        <i
-                            class="fa-solid fa-filter-circle-xmark"
-                            aria-hidden="true"
-                        ></i>
-
-                        Clear
-
-                    </button>
-
-                </div>
-
-
-                <!-- Orders table -->
-
-                <div class="panel table-panel">
-
-                    <div class="table-wrapper">
-
-                        <table
-                            id="ordersTable"
-                            class="data-table"
-                        >
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        Customer
-                                    </th>
-
-                                    <th>
-                                        Function
-                                    </th>
-
-                                    <th>
-                                        Date
-                                    </th>
-
-                                    <th>
-                                        Time
-                                    </th>
-
-                                    <th>
-                                        Location
-                                    </th>
-
-                                    <th>
-                                        Budget
-                                    </th>
-
-                                    <th>
-                                        Status
-                                    </th>
-
-                                    <th>
-                                        Actions
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody
-                                id="ordersTableBody"
-                            ></tbody>
-
-                        </table>
-
-                    </div>
-
-
-                    <div
-                        id="ordersEmptyState"
-                        class="empty-state"
-                        hidden
-                    >
-
-                        <div class="empty-icon">
-
-                            <i
-                                class="fa-solid fa-calendar-xmark"
-                                aria-hidden="true"
-                            ></i>
+                            <p class="section-description">
+                                View and manage all photography bookings.
+                            </p>
 
                         </div>
 
-                        <h3>
-                            No bookings found
-                        </h3>
+                        <button
+                            class="primary-button"
+                            type="button"
+                            data-action="new-booking"
+                        >
+                            + New Booking
+                        </button>
 
-                        <p>
-                            New customer bookings will appear here.
-                        </p>
+                    </div>
+
+
+                    <!-- Filters -->
+
+                    <div class="filter-bar">
+
+                        <div class="search-field">
+
+                            <span>
+                                ⌕
+                            </span>
+
+                            <input
+                                id="booking-search"
+                                type="search"
+                                placeholder="Search customers..."
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <select
+                            id="booking-status-filter"
+                            aria-label="Filter by status"
+                        >
+
+                            <option value="all">
+                                All statuses
+                            </option>
+
+                            <option value="pending">
+                                Pending
+                            </option>
+
+                            <option value="confirmed">
+                                Confirmed
+                            </option>
+
+                            <option value="completed">
+                                Completed
+                            </option>
+
+                            <option value="cancelled">
+                                Cancelled
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            id="refresh-bookings"
+                            class="secondary-button"
+                            type="button"
+                        >
+                            Refresh
+                        </button>
 
                     </div>
 
 
-                    <div
-                        id="ordersLoadingState"
-                        class="loading-state"
-                        hidden
-                    >
+                    <!-- Booking table -->
 
-                        <div class="loading-spinner"></div>
+                    <article class="panel">
 
-                        <p>
-                            Loading bookings...
-                        </p>
+                        <div
+                            id="bookings-table-container"
+                            class="table-container"
+                        >
+
+                            <div class="empty-state">
+
+                                <div class="empty-icon">
+                                    ▣
+                                </div>
+
+                                <h3>
+                                    No bookings found
+                                </h3>
+
+                                <p>
+                                    Customer booking records will appear here.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </section>
+
+
+                <!-- =================================================
+                     CALENDAR
+                     ================================================= -->
+
+                <section
+                    id="section-calendar"
+                    class="app-section"
+                    data-section-panel="calendar"
+                    hidden
+                >
+
+                    <div class="page-introduction">
+
+                        <div>
+
+                            <p class="section-eyebrow">
+                                SCHEDULE
+                            </p>
+
+                            <h1>
+                                Calendar
+                            </h1>
+
+                            <p class="section-description">
+                                Keep track of your photography schedule.
+                            </p>
+
+                        </div>
+
+                        <button
+                            class="primary-button"
+                            type="button"
+                            data-action="new-booking"
+                        >
+                            + New Booking
+                        </button>
 
                     </div>
 
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 CALENDAR SECTION
-            ================================================== -->
-
-            <section
-                id="section-calendar"
-                class="page-section"
-                data-page="calendar"
-                hidden
-            >
-
-                <div class="section-header">
-
-                    <div>
-
-                        <span class="section-eyebrow">
-                            SCHEDULE
-                        </span>
-
-                        <h2>
-                            Photography Calendar
-                        </h2>
-
-                        <p>
-                            View bookings by date.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="calendar-layout">
-
-                    <!-- Calendar -->
 
                     <article class="panel calendar-panel">
 
                         <div class="calendar-toolbar">
 
                             <button
-                                type="button"
-                                id="calendarPrevious"
+                                id="calendar-previous"
                                 class="icon-button"
+                                type="button"
                                 aria-label="Previous month"
                             >
-
-                                <i
-                                    class="fa-solid fa-chevron-left"
-                                    aria-hidden="true"
-                                ></i>
-
+                                ‹
                             </button>
 
-
-                            <div class="calendar-month-title">
-
-                                <h3
-                                    id="calendarMonthTitle"
-                                >
-                                    Month Year
-                                </h3>
-
-                            </div>
-
+                            <h2 id="calendar-month-title">
+                                —
+                            </h2>
 
                             <button
-                                type="button"
-                                id="calendarNext"
+                                id="calendar-next"
                                 class="icon-button"
+                                type="button"
                                 aria-label="Next month"
                             >
-
-                                <i
-                                    class="fa-solid fa-chevron-right"
-                                    aria-hidden="true"
-                                ></i>
-
+                                ›
                             </button>
 
-
                             <button
+                                id="calendar-today"
+                                class="secondary-button calendar-today-button"
                                 type="button"
-                                id="calendarToday"
-                                class="secondary-button"
                             >
                                 Today
                             </button>
@@ -1280,742 +1198,627 @@
 
 
                         <div
-                            id="calendarGrid"
+                            id="calendar-grid"
                             class="calendar-grid"
                         ></div>
 
-                    </article>
 
+                        <div class="calendar-legend">
 
-                    <!-- Selected date -->
+                            <span>
+                                <i class="legend-dot pending"></i>
+                                Pending
+                            </span>
 
-                    <article class="panel selected-date-panel">
+                            <span>
+                                <i class="legend-dot confirmed"></i>
+                                Confirmed
+                            </span>
 
-                        <div class="panel-header">
-
-                            <div>
-
-                                <span class="panel-eyebrow">
-                                    SELECTED DATE
-                                </span>
-
-                                <h3
-                                    id="selectedDateTitle"
-                                >
-                                    No date selected
-                                </h3>
-
-                            </div>
+                            <span>
+                                <i class="legend-dot completed"></i>
+                                Completed
+                            </span>
 
                         </div>
 
-                        <div
-                            id="selectedDateOrders"
-                            class="selected-date-orders"
-                        ></div>
-
                     </article>
 
-                </div>
-
-            </section>
+                </section>
 
 
-            <!-- =================================================
-                 CONTRACTS SECTION
-            ================================================== -->
+                <!-- =================================================
+                     CONTRACTS
+                     ================================================= -->
 
-            <section
-                id="section-contracts"
-                class="page-section"
-                data-page="contracts"
-                hidden
-            >
-
-                <div class="section-header">
-
-                    <div>
-
-                        <span class="section-eyebrow">
-                            DOCUMENTS
-                        </span>
-
-                        <h2>
-                            Contracts
-                        </h2>
-
-                        <p>
-                            Create and manage photography contracts.
-                        </p>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        id="newContractButton"
-                        class="primary-button"
-                    >
-
-                        <i
-                            class="fa-solid fa-plus"
-                            aria-hidden="true"
-                        ></i>
-
-                        New Contract
-
-                    </button>
-
-                </div>
-
-
-                <div
-                    id="contractsContainer"
-                    class="cards-grid"
-                ></div>
-
-
-                <div
-                    id="contractsEmptyState"
-                    class="empty-state"
+                <section
+                    id="section-contracts"
+                    class="app-section"
+                    data-section-panel="contracts"
                     hidden
                 >
 
-                    <div class="empty-icon">
+                    <div class="page-introduction">
 
-                        <i
-                            class="fa-solid fa-file-circle-xmark"
-                            aria-hidden="true"
-                        ></i>
+                        <div>
 
-                    </div>
+                            <p class="section-eyebrow">
+                                DOCUMENTS
+                            </p>
 
-                    <h3>
-                        No contracts yet
-                    </h3>
+                            <h1>
+                                Contracts
+                            </h1>
 
-                    <p>
-                        Create your first contract from the button above.
-                    </p>
+                            <p class="section-description">
+                                Manage customer contracts and booking documents.
+                            </p>
 
-                </div>
+                        </div>
 
-            </section>
-
-
-            <!-- =================================================
-                 GALLERY SECTION
-            ================================================== -->
-
-            <section
-                id="section-gallery"
-                class="page-section"
-                data-page="gallery"
-                hidden
-            >
-
-                <div class="section-header">
-
-                    <div>
-
-                        <span class="section-eyebrow">
-                            MEDIA
-                        </span>
-
-                        <h2>
-                            Studio Gallery
-                        </h2>
-
-                        <p>
-                            Manage photography images and media.
-                        </p>
+                        <button
+                            id="new-contract-button"
+                            class="primary-button"
+                            type="button"
+                        >
+                            + New Contract
+                        </button>
 
                     </div>
 
-                    <button
-                        type="button"
-                        id="galleryUploadButton"
-                        class="primary-button"
-                    >
-
-                        <i
-                            class="fa-solid fa-cloud-arrow-up"
-                            aria-hidden="true"
-                        ></i>
-
-                        Upload Media
-
-                    </button>
-
-                </div>
-
-
-                <input
-                    type="file"
-                    id="galleryFileInput"
-                    accept="image/*,video/*"
-                    multiple
-                    hidden
-                >
-
-
-                <div
-                    id="galleryContainer"
-                    class="gallery-grid"
-                ></div>
-
-
-                <div
-                    id="galleryEmptyState"
-                    class="empty-state"
-                    hidden
-                >
-
-                    <div class="empty-icon">
-
-                        <i
-                            class="fa-solid fa-images"
-                            aria-hidden="true"
-                        ></i>
-
-                    </div>
-
-                    <h3>
-                        Gallery is empty
-                    </h3>
-
-                    <p>
-                        Upload images or videos to build your studio gallery.
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 NOTIFICATIONS SECTION
-            ================================================== -->
-
-            <section
-                id="section-notifications"
-                class="page-section"
-                data-page="notifications"
-                hidden
-            >
-
-                <div class="section-header">
-
-                    <div>
-
-                        <span class="section-eyebrow">
-                            ACTIVITY
-                        </span>
-
-                        <h2>
-                            Notifications
-                        </h2>
-
-                        <p>
-                            Recent booking and studio activity.
-                        </p>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        id="markAllNotificationsRead"
-                        class="secondary-button"
-                    >
-
-                        <i
-                            class="fa-solid fa-check-double"
-                            aria-hidden="true"
-                        ></i>
-
-                        Mark All Read
-
-                    </button>
-
-                </div>
-
-
-                <div
-                    id="notificationsContainer"
-                    class="notifications-list"
-                ></div>
-
-
-                <div
-                    id="notificationsEmptyState"
-                    class="empty-state"
-                    hidden
-                >
-
-                    <div class="empty-icon">
-
-                        <i
-                            class="fa-solid fa-bell-slash"
-                            aria-hidden="true"
-                        ></i>
-
-                    </div>
-
-                    <h3>
-                        No notifications
-                    </h3>
-
-                    <p>
-                        You're all caught up.
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 SETTINGS SECTION
-            ================================================== -->
-
-            <section
-                id="section-settings"
-                class="page-section"
-                data-page="settings"
-                hidden
-            >
-
-                <div class="section-header">
-
-                    <div>
-
-                        <span class="section-eyebrow">
-                            CONFIGURATION
-                        </span>
-
-                        <h2>
-                            Studio Settings
-                        </h2>
-
-                        <p>
-                            Configure your studio information.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="settings-grid">
 
                     <article class="panel">
 
-                        <div class="panel-header">
+                        <div
+                            id="contracts-container"
+                            class="contracts-grid"
+                        >
 
-                            <div>
+                            <div class="empty-state">
 
-                                <span class="panel-eyebrow">
-                                    STUDIO
-                                </span>
+                                <div class="empty-icon">
+                                    ▤
+                                </div>
 
                                 <h3>
-                                    Studio Information
+                                    No contracts yet
                                 </h3>
+
+                                <p>
+                                    Contracts will appear here.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </section>
+
+
+                <!-- =================================================
+                     GALLERY
+                     ================================================= -->
+
+                <section
+                    id="section-gallery"
+                    class="app-section"
+                    data-section-panel="gallery"
+                    hidden
+                >
+
+                    <div class="page-introduction">
+
+                        <div>
+
+                            <p class="section-eyebrow">
+                                STUDIO MEDIA
+                            </p>
+
+                            <h1>
+                                Gallery
+                            </h1>
+
+                            <p class="section-description">
+                                Manage photography and studio media.
+                            </p>
+
+                        </div>
+
+                        <button
+                            id="gallery-upload-button"
+                            class="primary-button"
+                            type="button"
+                        >
+                            + Add Media
+                        </button>
+
+                    </div>
+
+
+                    <article class="panel">
+
+                        <div class="gallery-toolbar">
+
+                            <div class="gallery-filters">
+
+                                <button
+                                    class="filter-chip active"
+                                    type="button"
+                                    data-gallery-filter="all"
+                                >
+                                    All
+                                </button>
+
+                                <button
+                                    class="filter-chip"
+                                    type="button"
+                                    data-gallery-filter="image"
+                                >
+                                    Photos
+                                </button>
+
+                                <button
+                                    class="filter-chip"
+                                    type="button"
+                                    data-gallery-filter="video"
+                                >
+                                    Videos
+                                </button>
 
                             </div>
 
                         </div>
 
 
-                        <form
-                            id="studioSettingsForm"
-                            class="settings-form"
+                        <div
+                            id="gallery-grid"
+                            class="gallery-grid"
                         >
 
-                            <div class="form-row">
+                            <div class="empty-state">
 
-                                <div class="form-group">
+                                <div class="empty-icon">
+                                    ▧
+                                </div>
 
-                                    <label for="studioName">
-                                        Studio Name
+                                <h3>
+                                    Gallery is empty
+                                </h3>
+
+                                <p>
+                                    Your studio media will appear here.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </section>
+
+
+                <!-- =================================================
+                     NOTIFICATIONS
+                     ================================================= -->
+
+                <section
+                    id="section-notifications"
+                    class="app-section"
+                    data-section-panel="notifications"
+                    hidden
+                >
+
+                    <div class="page-introduction">
+
+                        <div>
+
+                            <p class="section-eyebrow">
+                                ACTIVITY
+                            </p>
+
+                            <h1>
+                                Notifications
+                            </h1>
+
+                            <p class="section-description">
+                                Stay informed about studio activity.
+                            </p>
+
+                        </div>
+
+                        <button
+                            id="mark-all-read"
+                            class="secondary-button"
+                            type="button"
+                        >
+                            Mark all as read
+                        </button>
+
+                    </div>
+
+
+                    <article class="panel">
+
+                        <div
+                            id="notifications-list"
+                            class="notifications-list"
+                        >
+
+                            <div class="empty-state">
+
+                                <div class="empty-icon">
+                                    ♢
+                                </div>
+
+                                <h3>
+                                    You're all caught up
+                                </h3>
+
+                                <p>
+                                    New notifications will appear here.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </section>
+
+
+                <!-- =================================================
+                     SETTINGS
+                     ================================================= -->
+
+                <section
+                    id="section-settings"
+                    class="app-section"
+                    data-section-panel="settings"
+                    hidden
+                >
+
+                    <div class="page-introduction">
+
+                        <div>
+
+                            <p class="section-eyebrow">
+                                CONFIGURATION
+                            </p>
+
+                            <h1>
+                                Studio Settings
+                            </h1>
+
+                            <p class="section-description">
+                                Configure your owner dashboard.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="settings-grid">
+
+
+                        <!-- Profile -->
+
+                        <article class="panel">
+
+                            <div class="panel-header">
+
+                                <div>
+
+                                    <p class="panel-eyebrow">
+                                        PROFILE
+                                    </p>
+
+                                    <h2>
+                                        Owner Profile
+                                    </h2>
+
+                                </div>
+
+                            </div>
+
+
+                            <form
+                                id="profile-settings-form"
+                                class="settings-form"
+                            >
+
+                                <div class="form-field">
+
+                                    <label
+                                        for="settings-name"
+                                    >
+                                        Display name
                                     </label>
 
                                     <input
+                                        id="settings-name"
                                         type="text"
-                                        id="studioName"
-                                        name="studio_name"
+                                        placeholder="Owner"
+                                    >
+
+                                </div>
+
+
+                                <div class="form-field">
+
+                                    <label
+                                        for="settings-email"
+                                    >
+                                        Account email
+                                    </label>
+
+                                    <input
+                                        id="settings-email"
+                                        type="email"
+                                        readonly
+                                    >
+
+                                </div>
+
+
+                                <button
+                                    class="primary-button"
+                                    type="submit"
+                                >
+                                    Save profile
+                                </button>
+
+                            </form>
+
+                        </article>
+
+
+                        <!-- Studio -->
+
+                        <article class="panel">
+
+                            <div class="panel-header">
+
+                                <div>
+
+                                    <p class="panel-eyebrow">
+                                        STUDIO
+                                    </p>
+
+                                    <h2>
+                                        Studio Information
+                                    </h2>
+
+                                </div>
+
+                            </div>
+
+
+                            <form
+                                id="studio-settings-form"
+                                class="settings-form"
+                            >
+
+                                <div class="form-field">
+
+                                    <label
+                                        for="studio-name"
+                                    >
+                                        Studio name
+                                    </label>
+
+                                    <input
+                                        id="studio-name"
+                                        type="text"
                                         value="RS Photography"
                                     >
 
                                 </div>
 
 
-                                <div class="form-group">
+                                <div class="form-field">
 
-                                    <label for="studioEmail">
-                                        Contact Email
-                                    </label>
-
-                                    <input
-                                        type="email"
-                                        id="studioEmail"
-                                        name="studio_email"
+                                    <label
+                                        for="studio-phone"
                                     >
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="form-row">
-
-                                <div class="form-group">
-
-                                    <label for="studioPhone">
-                                        Phone
+                                        Contact number
                                     </label>
 
                                     <input
+                                        id="studio-phone"
                                         type="tel"
-                                        id="studioPhone"
-                                        name="studio_phone"
+                                        placeholder="+91..."
                                     >
 
                                 </div>
 
 
-                                <div class="form-group">
+                                <div class="form-field">
 
-                                    <label for="studioLocation">
-                                        Location
+                                    <label
+                                        for="studio-location"
+                                    >
+                                        Studio location
                                     </label>
 
-                                    <input
-                                        type="text"
-                                        id="studioLocation"
-                                        name="studio_location"
-                                    >
+                                    <textarea
+                                        id="studio-location"
+                                        rows="3"
+                                        placeholder="Studio address"
+                                    ></textarea>
 
                                 </div>
 
-                            </div>
 
-
-                            <div class="form-group">
-
-                                <label for="studioDescription">
-                                    Description
-                                </label>
-
-                                <textarea
-                                    id="studioDescription"
-                                    name="studio_description"
-                                    rows="5"
-                                ></textarea>
-
-                            </div>
-
-
-                            <button
-                                type="submit"
-                                id="saveStudioSettings"
-                                class="primary-button"
-                            >
-
-                                <i
-                                    class="fa-solid fa-floppy-disk"
-                                    aria-hidden="true"
-                                ></i>
-
-                                Save Settings
-
-                            </button>
-
-                        </form>
-
-                    </article>
-
-
-                    <!-- Account -->
-
-                    <article class="panel">
-
-                        <div class="panel-header">
-
-                            <div>
-
-                                <span class="panel-eyebrow">
-                                    ACCOUNT
-                                </span>
-
-                                <h3>
-                                    Owner Account
-                                </h3>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="account-details">
-
-                            <div class="account-detail">
-
-                                <span>
-                                    Email
-                                </span>
-
-                                <strong
-                                    id="settingsUserEmail"
+                                <button
+                                    class="primary-button"
+                                    type="submit"
                                 >
-                                    —
-                                </strong>
+                                    Save studio settings
+                                </button>
 
-                            </div>
+                            </form>
 
-
-                            <div class="account-detail">
-
-                                <span>
-                                    Account Status
-                                </span>
-
-                                <strong class="status-badge confirmed">
-                                    Authenticated
-                                </strong>
-
-                            </div>
-
-                        </div>
+                        </article>
 
 
-                        <button
-                            type="button"
-                            id="settingsLogout"
-                            class="danger-button"
-                        >
+                    </div>
 
-                            <i
-                                class="fa-solid fa-right-from-bracket"
-                                aria-hidden="true"
-                            ></i>
+                </section>
 
-                            Sign Out
-
-                        </button>
-
-                    </article>
-
-                </div>
-
-            </section>
+            </div>
 
         </div>
-
-
-        <!-- =================================================
-             FOOTER
-        ================================================== -->
-
-        <footer class="app-footer">
-
-            <span>
-                © <span id="footerYear"></span> RS Photography
-            </span>
-
-            <span>
-                Owner Dashboard
-            </span>
-
-        </footer>
 
     </main>
 
-</div>
 
-
-<!-- =========================================================
-     NEW BOOKING MODAL
-========================================================= -->
-
-<div
-    id="orderModal"
-    class="modal"
-    hidden
-    aria-hidden="true"
->
+    <!-- =====================================================
+         NEW BOOKING MODAL
+         ===================================================== -->
 
     <div
-        class="modal-backdrop"
-        data-close-modal="orderModal"
-    ></div>
-
-    <div
-        class="modal-dialog modal-large"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="orderModalTitle"
+        id="booking-modal"
+        class="modal"
+        hidden
+        aria-hidden="true"
     >
 
-        <div class="modal-header">
+        <div class="modal-backdrop"></div>
 
-            <div>
-
-                <span class="modal-eyebrow">
-                    BOOKING
-                </span>
-
-                <h2
-                    id="orderModalTitle"
-                >
-                    New Booking
-                </h2>
-
-            </div>
-
-            <button
-                type="button"
-                class="icon-button modal-close"
-                data-close-modal="orderModal"
-                aria-label="Close"
-            >
-
-                <i
-                    class="fa-solid fa-xmark"
-                    aria-hidden="true"
-                ></i>
-
-            </button>
-
-        </div>
-
-
-        <form
-            id="orderForm"
-            class="modal-form"
-            novalidate
+        <div
+            class="modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="booking-modal-title"
         >
 
-            <input
-                type="hidden"
-                id="orderId"
-                name="id"
-            >
+            <div class="modal-header">
 
+                <div>
 
-            <div class="form-section">
+                    <p class="panel-eyebrow">
+                        BOOKING
+                    </p>
 
-                <h3>
-                    Customer Information
-                </h3>
-
-                <div class="form-row">
-
-                    <div class="form-group">
-
-                        <label for="customerName">
-                            Customer Name *
-                        </label>
-
-                        <input
-                            type="text"
-                            id="customerName"
-                            name="customer_name"
-                            required
-                            autocomplete="name"
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="customerPhone">
-                            Phone *
-                        </label>
-
-                        <input
-                            type="tel"
-                            id="customerPhone"
-                            name="phone"
-                            required
-                            autocomplete="tel"
-                        >
-
-                    </div>
+                    <h2 id="booking-modal-title">
+                        New Booking
+                    </h2>
 
                 </div>
 
-
-                <div class="form-group">
-
-                    <label for="customerLocation">
-                        Location *
-                    </label>
-
-                    <input
-                        type="text"
-                        id="customerLocation"
-                        name="location"
-                        required
-                    >
-
-                </div>
+                <button
+                    id="close-booking-modal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close booking form"
+                >
+                    ×
+                </button>
 
             </div>
 
 
-            <div class="form-section">
+            <form
+                id="booking-form"
+                class="modal-form"
+            >
 
-                <h3>
-                    Booking Details
-                </h3>
+                <div class="form-grid">
 
-                <div class="form-row">
 
-                    <div class="form-group">
+                    <div class="form-field">
 
-                        <label for="bookingDate">
-                            Booking Date *
+                        <label for="booking-customer-name">
+                            Customer name
                         </label>
 
                         <input
-                            type="date"
-                            id="bookingDate"
+                            id="booking-customer-name"
+                            name="customer_name"
+                            type="text"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="booking-phone">
+                            Phone
+                        </label>
+
+                        <input
+                            id="booking-phone"
+                            name="phone"
+                            type="tel"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="booking-location">
+                            Location
+                        </label>
+
+                        <input
+                            id="booking-location"
+                            name="location"
+                            type="text"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="booking-date">
+                            Booking date
+                        </label>
+
+                        <input
+                            id="booking-date"
                             name="booking_date"
+                            type="date"
                             required
                         >
 
                     </div>
 
 
-                    <div class="form-group">
+                    <div class="form-field">
 
-                        <label for="bookingTime">
-                            Booking Time *
+                        <label for="booking-time">
+                            Booking time
                         </label>
 
                         <input
-                            type="time"
-                            id="bookingTime"
+                            id="booking-time"
                             name="booking_time"
+                            type="time"
                             required
                         >
 
                     </div>
 
-                </div>
 
+                    <div class="form-field">
 
-                <div class="form-row">
-
-                    <div class="form-group">
-
-                        <label for="functionType">
-                            Function Type *
+                        <label for="booking-function">
+                            Function type
                         </label>
 
                         <select
-                            id="functionType"
+                            id="booking-function"
                             name="function_type"
                             required
                         >
@@ -2024,39 +1827,35 @@
                                 Select function
                             </option>
 
-                            <option value="wedding">
+                            <option value="Wedding">
                                 Wedding
                             </option>
 
-                            <option value="pre-wedding">
+                            <option value="Pre-Wedding">
                                 Pre-Wedding
                             </option>
 
-                            <option value="engagement">
+                            <option value="Engagement">
                                 Engagement
                             </option>
 
-                            <option value="birthday">
+                            <option value="Birthday">
                                 Birthday
                             </option>
 
-                            <option value="portrait">
+                            <option value="Portrait">
                                 Portrait
                             </option>
 
-                            <option value="maternity">
-                                Maternity
+                            <option value="Baby Shoot">
+                                Baby Shoot
                             </option>
 
-                            <option value="family">
-                                Family
-                            </option>
-
-                            <option value="corporate">
+                            <option value="Corporate">
                                 Corporate
                             </option>
 
-                            <option value="other">
+                            <option value="Other">
                                 Other
                             </option>
 
@@ -2065,519 +1864,280 @@
                     </div>
 
 
-                    <div class="form-group">
+                    <div class="form-field">
 
-                        <label for="expectedMoney">
-                            Expected Budget
+                        <label for="booking-budget">
+                            Expected amount
                         </label>
 
                         <input
-                            type="number"
-                            id="expectedMoney"
+                            id="booking-budget"
                             name="expected_money"
+                            type="number"
                             min="0"
                             step="1"
-                            placeholder="₹0"
+                            placeholder="₹"
                         >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="booking-status">
+                            Status
+                        </label>
+
+                        <select
+                            id="booking-status"
+                            name="status"
+                        >
+
+                            <option value="pending">
+                                Pending
+                            </option>
+
+                            <option value="confirmed">
+                                Confirmed
+                            </option>
+
+                            <option value="completed">
+                                Completed
+                            </option>
+
+                            <option value="cancelled">
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-field full">
+
+                        <label for="booking-notes">
+                            Notes
+                        </label>
+
+                        <textarea
+                            id="booking-notes"
+                            name="notes"
+                            rows="4"
+                            placeholder="Additional booking notes..."
+                        ></textarea>
 
                     </div>
 
                 </div>
 
 
-                <div class="form-group">
-
-                    <label for="orderNotes">
-                        Notes
-                    </label>
-
-                    <textarea
-                        id="orderNotes"
-                        name="notes"
-                        rows="4"
-                        placeholder="Additional booking information..."
-                    ></textarea>
-
-                </div>
-
-            </div>
+                <div
+                    id="booking-form-message"
+                    class="form-message"
+                    role="alert"
+                ></div>
 
 
-            <div class="form-section">
+                <div class="modal-actions">
 
-                <h3>
-                    Status
-                </h3>
-
-                <div class="form-group">
-
-                    <label for="orderStatus">
-                        Booking Status
-                    </label>
-
-                    <select
-                        id="orderStatus"
-                        name="status"
+                    <button
+                        id="cancel-booking"
+                        class="secondary-button"
+                        type="button"
                     >
+                        Cancel
+                    </button>
 
-                        <option value="pending">
-                            Pending
-                        </option>
-
-                        <option value="confirmed">
-                            Confirmed
-                        </option>
-
-                        <option value="completed">
-                            Completed
-                        </option>
-
-                        <option value="cancelled">
-                            Cancelled
-                        </option>
-
-                    </select>
+                    <button
+                        class="primary-button"
+                        type="submit"
+                    >
+                        Save Booking
+                    </button>
 
                 </div>
 
-            </div>
-
-
-            <div
-                id="orderFormMessage"
-                class="form-message"
-                role="alert"
-                aria-live="polite"
-                hidden
-            ></div>
-
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="secondary-button"
-                    data-close-modal="orderModal"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    type="submit"
-                    id="saveOrderButton"
-                    class="primary-button"
-                >
-
-                    <span id="saveOrderButtonText">
-                        Save Booking
-                    </span>
-
-                    <span
-                        id="saveOrderLoader"
-                        class="button-loader"
-                        hidden
-                    ></span>
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     CONTRACT MODAL
-========================================================= -->
-
-<div
-    id="contractModal"
-    class="modal"
-    hidden
-    aria-hidden="true"
->
-
-    <div
-        class="modal-backdrop"
-        data-close-modal="contractModal"
-    ></div>
-
-    <div
-        class="modal-dialog modal-large"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="contractModalTitle"
-    >
-
-        <div class="modal-header">
-
-            <div>
-
-                <span class="modal-eyebrow">
-                    DOCUMENT
-                </span>
-
-                <h2
-                    id="contractModalTitle"
-                >
-                    New Contract
-                </h2>
-
-            </div>
-
-            <button
-                type="button"
-                class="icon-button modal-close"
-                data-close-modal="contractModal"
-                aria-label="Close"
-            >
-
-                <i
-                    class="fa-solid fa-xmark"
-                    aria-hidden="true"
-                ></i>
-
-            </button>
+            </form>
 
         </div>
 
+    </div>
 
-        <form
-            id="contractForm"
-            class="modal-form"
-            novalidate
+
+    <!-- =====================================================
+         CONTRACT MODAL
+         ===================================================== -->
+
+    <div
+        id="contract-modal"
+        class="modal"
+        hidden
+        aria-hidden="true"
+    >
+
+        <div class="modal-backdrop"></div>
+
+        <div
+            class="modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="contract-modal-title"
         >
 
-            <input
-                type="hidden"
-                id="contractId"
-                name="id"
-            >
+            <div class="modal-header">
 
+                <div>
 
-            <div class="form-group">
+                    <p class="panel-eyebrow">
+                        DOCUMENT
+                    </p>
 
-                <label for="contractCustomerName">
-                    Customer Name *
-                </label>
+                    <h2 id="contract-modal-title">
+                        New Contract
+                    </h2>
 
-                <input
-                    type="text"
-                    id="contractCustomerName"
-                    name="customer_name"
-                    required
+                </div>
+
+                <button
+                    id="close-contract-modal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close contract form"
                 >
+                    ×
+                </button>
 
             </div>
 
 
-            <div class="form-row">
+            <form
+                id="contract-form"
+                class="modal-form"
+            >
 
-                <div class="form-group">
+                <div class="form-field">
 
-                    <label for="contractDate">
-                        Contract Date *
+                    <label for="contract-customer">
+                        Customer name
                     </label>
 
                     <input
-                        type="date"
-                        id="contractDate"
-                        name="contract_date"
+                        id="contract-customer"
+                        type="text"
                         required
                     >
 
                 </div>
 
 
-                <div class="form-group">
+                <div class="form-field">
 
-                    <label for="contractAmount">
-                        Contract Amount
+                    <label for="contract-title">
+                        Contract title
                     </label>
 
                     <input
-                        type="number"
-                        id="contractAmount"
-                        name="amount"
-                        min="0"
-                        step="1"
+                        id="contract-title"
+                        type="text"
+                        placeholder="Photography Agreement"
+                        required
                     >
 
                 </div>
 
-            </div>
+
+                <div class="form-field">
+
+                    <label for="contract-notes">
+                        Notes
+                    </label>
+
+                    <textarea
+                        id="contract-notes"
+                        rows="5"
+                        placeholder="Contract notes..."
+                    ></textarea>
+
+                </div>
 
 
-            <div class="form-group">
-
-                <label for="contractNotes">
-                    Contract Notes
-                </label>
-
-                <textarea
-                    id="contractNotes"
-                    name="notes"
-                    rows="8"
-                    placeholder="Enter contract notes..."
-                ></textarea>
-
-            </div>
+                <div
+                    id="contract-form-message"
+                    class="form-message"
+                    role="alert"
+                ></div>
 
 
-            <div
-                id="contractFormMessage"
-                class="form-message"
-                role="alert"
-                aria-live="polite"
-                hidden
-            ></div>
+                <div class="modal-actions">
 
+                    <button
+                        id="cancel-contract"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        Cancel
+                    </button>
 
-            <div class="modal-footer">
+                    <button
+                        class="primary-button"
+                        type="submit"
+                    >
+                        Create Contract
+                    </button>
 
-                <button
-                    type="button"
-                    class="secondary-button"
-                    data-close-modal="contractModal"
-                >
-                    Cancel
-                </button>
+                </div>
 
-                <button
-                    type="submit"
-                    id="saveContractButton"
-                    class="primary-button"
-                >
-                    Save Contract
-                </button>
+            </form>
 
-            </div>
-
-        </form>
+        </div>
 
     </div>
 
-</div>
 
-
-<!-- =========================================================
-     ORDER VIEW MODAL
-========================================================= -->
-
-<div
-    id="orderViewModal"
-    class="modal"
-    hidden
-    aria-hidden="true"
->
+    <!-- =====================================================
+         GLOBAL TOAST
+         ===================================================== -->
 
     <div
-        class="modal-backdrop"
-        data-close-modal="orderViewModal"
-    ></div>
-
-    <div
-        class="modal-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="orderViewTitle"
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+        hidden
     >
 
-        <div class="modal-header">
+        <span
+            id="toast-icon"
+            class="toast-icon"
+        >
+            ✓
+        </span>
 
-            <div>
-
-                <span class="modal-eyebrow">
-                    BOOKING DETAILS
-                </span>
-
-                <h2
-                    id="orderViewTitle"
-                >
-                    Booking
-                </h2>
-
-            </div>
-
-            <button
-                type="button"
-                class="icon-button modal-close"
-                data-close-modal="orderViewModal"
-                aria-label="Close"
-            >
-
-                <i
-                    class="fa-solid fa-xmark"
-                    aria-hidden="true"
-                ></i>
-
-            </button>
-
-        </div>
-
-
-        <div
-            id="orderViewContent"
-            class="order-view-content"
-        ></div>
-
-
-        <div class="modal-footer">
-
-            <button
-                type="button"
-                id="editViewedOrder"
-                class="secondary-button"
-            >
-
-                <i
-                    class="fa-solid fa-pen"
-                    aria-hidden="true"
-                ></i>
-
-                Edit
-
-            </button>
-
-            <button
-                type="button"
-                id="deleteViewedOrder"
-                class="danger-button"
-            >
-
-                <i
-                    class="fa-solid fa-trash"
-                    aria-hidden="true"
-                ></i>
-
-                Delete
-
-            </button>
-
-        </div>
+        <span id="toast-message">
+            Done
+        </span>
 
     </div>
 
-</div>
 
+    <!-- =====================================================
+         SCRIPTS
+         
+         IMPORTANT:
+         We will create these files next.
+         ===================================================== -->
 
-<!-- =========================================================
-     CONFIRMATION MODAL
-========================================================= -->
+    <!-- Supabase library -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
 
-<div
-    id="confirmModal"
-    class="modal"
-    hidden
-    aria-hidden="true"
->
+    <!-- Our Supabase configuration -->
+    <script src="supabase.js"></script>
 
-    <div
-        class="modal-backdrop"
-        data-close-modal="confirmModal"
-    ></div>
-
-    <div
-        class="modal-dialog modal-small"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirmTitle"
-    >
-
-        <div class="confirm-content">
-
-            <div
-                id="confirmIcon"
-                class="confirm-icon"
-            >
-
-                <i
-                    class="fa-solid fa-circle-question"
-                    aria-hidden="true"
-                ></i>
-
-            </div>
-
-            <h2
-                id="confirmTitle"
-            >
-                Confirm Action
-            </h2>
-
-            <p
-                id="confirmMessage"
-            >
-                Are you sure?
-            </p>
-
-            <div class="confirm-actions">
-
-                <button
-                    type="button"
-                    id="confirmCancel"
-                    class="secondary-button"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    type="button"
-                    id="confirmProceed"
-                    class="danger-button"
-                >
-                    Confirm
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =========================================================
-     TOAST CONTAINER
-========================================================= -->
-
-<div
-    id="toastContainer"
-    class="toast-container"
-    aria-live="polite"
-    aria-atomic="true"
-></div>
-
-
-<!-- =========================================================
-     SUPABASE
-     
-     IMPORTANT:
-     supabase.js MUST create:
-     
-     window.supabaseClient
-     
-     before script.js starts.
-========================================================= -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
-
-
-<script
-    src="supabase.js"
-    defer
-></script>
-
-
-<script
-    src="script.js"
-    defer
-></script>
+    <!-- Main application -->
+    <script src="script.js"></script>
 
 </body>
 </html>
