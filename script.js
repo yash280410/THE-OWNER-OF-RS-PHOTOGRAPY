@@ -1729,65 +1729,306 @@ function navigateTo(
    MOBILE SIDEBAR
 ========================================================= */
 
-function toggleMobileSidebar() {
+/* =========================================================
+   SIDEBAR CONTROLLER
+   ========================================================= */
 
-    document.body.classList.toggle(
-        "sidebar-open"
-    );
+function setupSidebar() {
 
-    const button =
-        $("mobile-menu-button");
+    const sidebar =
+        document.getElementById("sidebar");
 
     const overlay =
-        $("sidebar-overlay");
+        document.getElementById("sidebarOverlay");
 
-    const open =
-        document.body.classList.contains(
-            "sidebar-open"
+    if (!sidebar) {
+        console.warn(
+            "Sidebar element #sidebar not found."
         );
-
-    if (button) {
-
-        button.setAttribute(
-            "aria-expanded",
-            String(open)
-        );
-
+        return;
     }
 
-    if (overlay) {
 
-        overlay.setAttribute(
-            "aria-hidden",
-            String(!open)
+    /*
+     * Create a mobile menu button if the HTML
+     * doesn't already contain one.
+     */
+
+    let menuButton =
+        document.getElementById("mobileMenuButton");
+
+
+    if (!menuButton) {
+
+        menuButton =
+            document.createElement("button");
+
+        menuButton.id =
+            "mobileMenuButton";
+
+        menuButton.type =
+            "button";
+
+        menuButton.className =
+            "mobile-menu-button";
+
+        menuButton.setAttribute(
+            "aria-label",
+            "Open navigation"
         );
 
-    }
-
-}
-
-
-function closeMobileSidebar() {
-
-    document.body.classList.remove(
-        "sidebar-open"
-    );
-
-    const button =
-        $("mobile-menu-button");
-
-    if (button) {
-
-        button.setAttribute(
+        menuButton.setAttribute(
             "aria-expanded",
             "false"
         );
 
+        menuButton.innerHTML =
+            "☰";
+
+
+        document.body.appendChild(
+            menuButton
+        );
+
     }
 
+
+    /* -----------------------------------------------------
+       OPEN SIDEBAR
+       ----------------------------------------------------- */
+
+    function openSidebar() {
+
+        if (
+            window.innerWidth > 900
+        ) {
+            return;
+        }
+
+
+        sidebar.classList.add(
+            "mobile-open"
+        );
+
+
+        if (overlay) {
+
+            overlay.classList.add(
+                "active"
+            );
+
+            overlay.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+        }
+
+
+        menuButton.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+
+        document.body.classList.add(
+            "sidebar-open"
+        );
+
+    }
+
+
+    /* -----------------------------------------------------
+       CLOSE SIDEBAR
+       ----------------------------------------------------- */
+
+    function closeSidebar() {
+
+        sidebar.classList.remove(
+            "mobile-open"
+        );
+
+
+        if (overlay) {
+
+            overlay.classList.remove(
+                "active"
+            );
+
+            overlay.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+
+
+        menuButton.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+
+        document.body.classList.remove(
+            "sidebar-open"
+        );
+
+    }
+
+
+    /* -----------------------------------------------------
+       TOGGLE
+       ----------------------------------------------------- */
+
+    function toggleSidebar() {
+
+        if (
+            sidebar.classList.contains(
+                "mobile-open"
+            )
+        ) {
+
+            closeSidebar();
+
+        } else {
+
+            openSidebar();
+
+        }
+
+    }
+
+
+    /* -----------------------------------------------------
+       MENU BUTTON
+       ----------------------------------------------------- */
+
+    menuButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            toggleSidebar();
+
+        }
+    );
+
+
+    /* -----------------------------------------------------
+       OVERLAY CLICK
+       ----------------------------------------------------- */
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            function () {
+
+                closeSidebar();
+
+            }
+        );
+
+    }
+
+
+    /* -----------------------------------------------------
+       SIDEBAR NAVIGATION
+       ----------------------------------------------------- */
+
+    const navigationItems =
+        sidebar.querySelectorAll(
+            "a, button[data-section], button[data-page], .nav-item"
+        );
+
+
+    navigationItems.forEach(
+        function (item) {
+
+            item.addEventListener(
+                "click",
+                function () {
+
+                    /*
+                     * Important:
+                     * close ONLY on mobile.
+                     */
+
+                    if (
+                        window.innerWidth <= 900
+                    ) {
+
+                        closeSidebar();
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    /* -----------------------------------------------------
+       ESC KEY
+       ----------------------------------------------------- */
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeSidebar();
+
+            }
+
+        }
+    );
+
+
+    /* -----------------------------------------------------
+       RESIZE
+       ----------------------------------------------------- */
+
+    window.addEventListener(
+        "resize",
+        function () {
+
+            /*
+             * Desktop:
+             * sidebar is permanently visible.
+             */
+
+            if (
+                window.innerWidth > 900
+            ) {
+
+                closeSidebar();
+
+            }
+
+        }
+    );
+
+
+    /*
+     * Expose controller for other dashboard code.
+     */
+
+    window.RSSidebar = {
+
+        open: openSidebar,
+        close: closeSidebar,
+        toggle: toggleSidebar
+
+    };
+
 }
-
-
 /* =========================================================
    APPLICATION DATA
 ========================================================= */
